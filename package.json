@@ -1,0 +1,26 @@
+{
+  "name": "advisor-game",
+  "version": "0.0.1",
+  "description": "导师模拟器 / Advisor Simulator — a text-based game about running an AI lab and chasing tenure. Built on the phd-game engine by Mianzhi Wang (MIT).",
+  "scripts": {
+    "build": "npx webpack",
+    "start": "node app.js"
+  },
+  "author": "Mianzhi Wang",
+  "license": "MIT",
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "express": "^4.18.2",
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "@types/seedrandom": "^3.0.5",
+    "js-yaml": "^4.1.0",
+    "query-string": "^8.1.0",
+    "seedrandom": "^3.0.5"
+  }
+}

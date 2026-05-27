@@ -1,0 +1,351 @@
+---
+# ============================================================================
+#  导师模拟器 / Advisor Simulator — event ruleset (skeleton vertical slice)
+#  You play a fresh AI assistant professor. Survive 6 years to tenure while
+#  juggling three resources: Funding, Reputation, and Lab Morale.
+#
+#  Everything here is data. To design the game you mostly add/edit events.
+#  Engine actions available: UpdateVariables, UpdateVariableLimits, SetStatus,
+#  GiveItem, DisplayMessage, DisplayChoices, Random, Switch, TriggerEvents,
+#  EndGame. Expressions support: + - * / %, ===, &&, ||, randi(n), floor(),
+#  getAttributeValue('id'), hasStatus('id').
+# ============================================================================
+
+# --- Boot: set initial state -----------------------------------------------
+- id: Init
+  trigger: Initialization
+  once: true
+  actions:
+  - id: UpdateVariableLimits
+    updates:
+      lab.morale: [0, 100]
+      pi.funding: [0, 100]
+      pi.reputation: [0, 100]
+  - id: UpdateVariables
+    updates:
+      elapsedMonth: 0
+      month: 1
+      year: 1
+      lab.morale: 75            # ❤️ if this hits 0 the lab implodes
+      pi.funding: 50            # 💰 stipends + GPUs burn this every month
+      pi.reputation: 20         # 📈 drives paper acceptance + tenure
+      pi.papers: 0              # accepted top-tier papers
+      pi.paperProgress: 0       # 0..100; at 100 a paper is submitted
+      rule.papersForTenure: 6   # tenure target (tune for difficulty)
+  - id: SetStatus
+    statusId: newFaculty
+    on: true
+
+# --- Master clock: advance month/year, fan out triggers ---------------------
+- id: GameTick
+  trigger: Tick
+  actions:
+  - id: UpdateVariables
+    updates:
+      elapsedMonth: elapsedMonth + 1
+      month: ((elapsedMonth - 1) % 12) + 1
+      year: floor((elapsedMonth - 1) / 12) + 1
+  - id: Switch
+    branches:
+    - condition: elapsedMonth % 12 === 1
+      actions:
+      - id: TriggerEvents
+        triggers:
+        - id: YearBegin
+          priority: 1
+  - id: TriggerEvents
+    triggers:
+    - id: MonthBegin
+
+# --- Opening cutscene -------------------------------------------------------
+- id: TheBeginning
+  trigger: MonthBegin
+  once: true
+  actions:
+  - id: DisplayChoices
+    message: msg.beginning
+    choices:
+    - message: msg.acceptJob
+      actions:
+      - id: DisplayMessage
+        message: msg.acceptedJob
+        confirm: msg.letsGo
+    - message: msg.declineJob
+      actions:
+      - id: EndGame
+        message: msg.declinedJob
+        confirm: msg.restart
+        winning: true
+
+# --- Monthly upkeep: pay the lab, apply morale drain ------------------------
+- id: MonthlyUpkeep
+  trigger: MonthBegin
+  actions:
+  - id: UpdateVariables
+    updates:
+      pi.funding: pi.funding - getAttributeValue('pi.fundingBurn')
+      lab.morale: lab.morale - getAttributeValue('pi.moraleDrain')
+
+# --- Lose conditions --------------------------------------------------------
+- id: LabImplodes
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: lab.morale <= 0
+  actions:
+  - id: EndGame
+    message: msg.labImplodes
+    confirm: msg.restart
+    winning: false
+- id: Bankrupt
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: pi.funding <= 0
+  actions:
+  - id: EndGame
+    message: msg.bankrupt
+    confirm: msg.restart
+    winning: false
+
+# --- Tenure clock pressure (years 4+) --------------------------------------
+- id: TenureClockStarts
+  trigger: YearBegin
+  once: true
+  conditions:
+  - id: Expression
+    expression: year >= 4
+  actions:
+  - id: DisplayMessage
+    message: msg.tenureClockStarts
+    confirm: msg.gulp
+  - id: SetStatus
+    statusId: tenureClock
+    on: true
+
+# --- THE monthly decision: how do you spend your attention? -----------------
+- id: MonthlyAction
+  trigger: MonthBegin
+  actions:
+  - id: DisplayChoices
+    message: msg.chooseAction
+    choices:
+    # 1) Push the lab toward a deadline: progress up, morale down.
+    - message: msg.actPush
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.paperProgress: pi.paperProgress + (randi(20) + 12)
+          lab.morale: lab.morale - (randi(6) + 6)
+      - id: DisplayMessage
+        message: msg.actPushDone
+        confirm: msg.ok
+    # 2) Mentor / 1:1s: morale up, nothing else advances.
+    - message: msg.actMentor
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale + (randi(8) + 7)
+      - id: DisplayMessage
+        message: msg.actMentorDone
+        confirm: msg.ok
+    # 3) Write a grant: chance of funding windfall, else wasted month.
+    - message: msg.actGrant
+      actions:
+      - id: Random
+        groups:
+        - weight: 0.45
+          actions:
+          - id: UpdateVariables
+            updates:
+              pi.funding: pi.funding + (randi(25) + 15)
+              pi.reputation: pi.reputation + 1
+          - id: DisplayMessage
+            message: msg.actGrantWin
+            confirm: msg.great
+        - weight: 0.55
+          actions:
+          - id: UpdateVariables
+            updates:
+              lab.morale: lab.morale - 2
+          - id: DisplayMessage
+            message: msg.actGrantFail
+            confirm: msg.sigh
+    # 4) Network / give talks: reputation up.
+    - message: msg.actNetwork
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.reputation: pi.reputation + (randi(6) + 3)
+      - id: DisplayMessage
+        message: msg.actNetworkDone
+        confirm: msg.ok
+    # 5) Protect work-life balance: morale up, you fall a little behind.
+    - message: msg.actRest
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale + (randi(6) + 5)
+          pi.reputation: pi.reputation - 1
+      - id: DisplayMessage
+        message: msg.actRestDone
+        confirm: msg.ok
+
+# --- Paper submission + reviewer verdict (fires when progress fills up) ------
+- id: PaperSubmission
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: pi.paperProgress >= 100
+  actions:
+  - id: DisplayMessage
+    message: msg.paperSubmitted
+    confirm: msg.fingersCrossed
+  # Acceptance probability rises with reputation and any rebuttal buff.
+  # Random normalizes group weights, so accept-weight=p, reject-weight=1-p.
+  - id: Random
+    groups:
+    - weight: 0.30 + pi.reputation / 250 + getAttributeValue('pi.paperAcceptanceBoost')
+      actions:   # ACCEPTED
+      - id: UpdateVariables
+        updates:
+          pi.papers: pi.papers + 1
+          pi.reputation: pi.reputation + 9
+          lab.morale: lab.morale + 8
+          pi.paperProgress: pi.paperProgress - 100
+      - id: DisplayMessage
+        message: msg.paperAccepted
+        confirm: msg.celebrate
+    - weight: 0.70 - pi.reputation / 250 - getAttributeValue('pi.paperAcceptanceBoost')
+      actions:   # REJECTED (Reviewer 2)
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale - 6
+          pi.paperProgress: 45   # resubmit from a partial draft
+      - id: DisplayMessage
+        message: msg.paperRejected
+        confirm: msg.reviewer2
+
+# --- Tenure review: the endgame (start of year 7) ---------------------------
+- id: TenureReview
+  trigger: YearBegin
+  conditions:
+  - id: Expression
+    expression: year >= 7
+  actions:
+  - id: Switch
+    branches:
+    - condition: pi.papers >= rule.papersForTenure && pi.reputation >= 50
+      actions:
+      - id: EndGame
+        message: msg.tenureGranted
+        confirm: msg.restart
+        winning: true
+    - condition: pi.papers >= rule.papersForTenure
+      actions:
+      - id: EndGame
+        message: msg.tenureBorderline
+        confirm: msg.restart
+        winning: true
+    - condition: 1   # always-true fallback: denied
+      actions:
+      - id: EndGame
+        message: msg.tenureDenied
+        confirm: msg.restart
+        winning: false
+
+# ============================================================================
+#  RANDOM EVENT CARDS — add as many as you like. Each is just an event with a
+#  probability and (optionally) conditions. This is where the game's flavor and
+#  replayability live.
+# ============================================================================
+
+# Reviewer 2 strikes mid-cycle.
+- id: EvReviewer2
+  trigger: MonthBegin
+  probability: 0.06
+  conditions:
+  - id: Expression
+    expression: pi.paperProgress > 0 && pi.paperProgress < 100
+  actions:
+  - id: DisplayChoices
+    message: msg.evReviewer2
+    choices:
+    - message: msg.evReviewer2Fight   # write a strong rebuttal
+      actions:
+      - id: SetStatus
+        statusId: strongRebuttal
+        on: true
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale - 4
+      - id: DisplayMessage
+        message: msg.evReviewer2FightDone
+        confirm: msg.ok
+    - message: msg.evReviewer2Concede  # withdraw and regroup
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.paperProgress: pi.paperProgress - 25
+      - id: DisplayMessage
+        message: msg.evReviewer2ConcedeDone
+        confirm: msg.ok
+
+# A star student gets a huge industry offer.
+- id: EvIndustryOffer
+  trigger: MonthBegin
+  once: true
+  probability: 0.05
+  conditions:
+  - id: Expression
+    expression: year >= 2
+  actions:
+  - id: DisplayChoices
+    message: msg.evOffer
+    choices:
+    - message: msg.evOfferBless    # let them go — good karma, lose labor
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.reputation: pi.reputation + 4
+          lab.morale: lab.morale + 6
+          pi.paperProgress: pi.paperProgress - 20
+      - id: DisplayMessage
+        message: msg.evOfferBlessDone
+        confirm: msg.ok
+    - message: msg.evOfferGuilt     # guilt them into staying
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.paperProgress: pi.paperProgress + 15
+          lab.morale: lab.morale - 12
+      - id: DisplayMessage
+        message: msg.evOfferGuiltDone
+        confirm: msg.ok
+
+# GPU cluster outage right before a deadline.
+- id: EvClusterOutage
+  trigger: MonthBegin
+  probability: 0.05
+  conditions:
+  - id: Expression
+    expression: pi.paperProgress >= 40
+  actions:
+  - id: DisplayMessage
+    message: msg.evOutage
+    confirm: msg.argh
+  - id: UpdateVariables
+    updates:
+      pi.paperProgress: pi.paperProgress - (randi(15) + 10)
+
+# A surprise gift / grant lands.
+- id: EvWindfall
+  trigger: MonthBegin
+  probability: 0.04
+  actions:
+  - id: DisplayMessage
+    message: msg.evWindfall
+    confirm: msg.great
+  - id: UpdateVariables
+    updates:
+      pi.funding: pi.funding + (randi(20) + 10)

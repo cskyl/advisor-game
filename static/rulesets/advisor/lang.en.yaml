@@ -1,0 +1,87 @@
+---
+# ============================================================================
+#  Advisor Simulator — English strings. Keys referenced from events/gui YAML.
+#  {{var}} interpolates a game variable. **bold** / *italic* markdown works.
+# ============================================================================
+ui.ok: Ok.
+ui.lab: "Lab:"
+ui.status: "Status:"
+ui.helpButton: Help
+ui.helpTitle: Help
+ui.helpContent: "You are a brand-new AI assistant professor. Each month you pick **one** thing to focus on. Balance three meters: **Morale** (your students' wellbeing — if it hits 0 the lab implodes), **Funding** (stipends and GPUs drain it every month — hit 0 and you're bankrupt), and **Reputation** (drives paper acceptance and tenure). Build paper progress to 100% to submit; reputation improves your odds against **Reviewer 2**. Survive to the **tenure review at the start of Year 7** with enough accepted papers."
+ui.aboutButton: About
+ui.aboutTitle: About
+ui.aboutContent: "**Advisor Simulator** — you run an AI lab and chase tenure while keeping your students sane. A reskin of **PhD Simulator** by Mianzhi Wang (MIT). This is a skeleton ruleset; extend it by editing the YAML in `static/rulesets/advisor`."
+
+# Meters
+ui.moraleMeter: "❤ Morale {{lab.morale}}/100"
+ui.fundingMeter: "$ Funding {{pi.funding}}/100"
+ui.reputationMeter: "★ Rep {{pi.reputation}} · Papers {{pi.papers}}"
+ui.timeMeter: "Year {{year}} Month {{month}}"
+
+# Generic confirm buttons
+msg.ok: Ok.
+msg.letsGo: Let's go.
+msg.great: Great!
+msg.sigh: "*sigh*"
+msg.gulp: "...gulp."
+msg.argh: Argh!
+msg.celebrate: 🎉
+msg.fingersCrossed: Fingers crossed...
+msg.reviewer2: Curse you, Reviewer 2.
+msg.restart: Start a new timeline.
+
+# Opening
+msg.beginning: "Congratulations — you've accepted an offer as an **Assistant Professor of Computer Science**. You have startup funds, an empty lab, and six years until your tenure case. Do you take the job?"
+msg.acceptJob: Accept the offer and move into my new office.
+msg.acceptedJob: "You hang your diploma, set up a coffee machine, and post your first PhD opening. The clock starts now."
+msg.declineJob: Decline — take the $600k industry research scientist offer instead.
+msg.declinedJob: "You join a big AI lab, ship models used by millions, and sleep eight hours a night. Was it the right call? You'll never know. **(You win, sort of.)**"
+
+# Tenure clock
+msg.tenureClockStarts: "Year 4. The department chair 'gently reminds' you that your tenure packet is due in three years. The clock is now very loud."
+
+# Monthly action
+msg.chooseAction: "A new month. Where do you put your limited attention?"
+msg.actPush: "🔬 Push the lab toward the next deadline."
+msg.actPushDone: "Whiteboards fill up, experiments launch, the Slack never sleeps. Progress climbs — and so does the exhaustion."
+msg.actMentor: "🤝 Hold real 1:1s and check on everyone."
+msg.actMentorDone: "You actually listen. Shoulders unclench across the lab; people remember why they came here."
+msg.actGrant: "📝 Lock yourself away and write a grant."
+msg.actGrantWin: "The panel loved it — the award lands. Stipends are safe for a while."
+msg.actGrantFail: "Triaged. 'Strong proposal, but not competitive this cycle.' A month gone."
+msg.actNetwork: "🎤 Give talks and work the hallway track."
+msg.actNetworkDone: "Handshakes, a podcast invite, two new collaborators. Your name travels."
+msg.actRest: "🌿 Protect work-life balance this month."
+msg.actRestDone: "No weekend emails. The lab recharges; you fall a little behind the hype cycle, and that's fine."
+
+# Paper pipeline
+msg.paperSubmitted: "A submission goes out the door minutes before the deadline. Now you wait for three anonymous strangers."
+msg.paperAccepted: "**ACCEPTED!** The lab erupts. A real line on everyone's CV and a jolt to your reputation."
+msg.paperRejected: "**Rejected.** Two champions, one Reviewer 2 who 'found the contribution incremental.' Morale takes a hit; you regroup for the next deadline."
+
+# Event: Reviewer 2
+msg.evReviewer2: "Reviews are in and Reviewer 2 is *spicy*. Do you fight or fold?"
+msg.evReviewer2Fight: "Write a surgical, receipts-filled rebuttal."
+msg.evReviewer2FightDone: "Twelve hours and a wall of citations later, the rebuttal is a thing of beauty. Acceptance odds tick up — at a cost to everyone's weekend."
+msg.evReviewer2Concede: "Withdraw and strengthen the paper instead."
+msg.evReviewer2ConcedeDone: "You pull it, take the notes seriously, and lose some progress — but the next version will be harder to dismiss."
+
+# Event: industry offer
+msg.evOffer: "Your strongest student just got a **$500k offer from a frontier lab**. They look to you for a reaction."
+msg.evOfferBless: "Tell them it's a fantastic opportunity — go."
+msg.evOfferBlessDone: "They leave grateful and stay an evangelist for your lab. You lose a key contributor, but the goodwill is real."
+msg.evOfferGuilt: "Remind them how close the thesis is... and how much you've invested."
+msg.evOfferGuiltDone: "They stay, and the work moves — but something shifts in the room, and it isn't good."
+
+# Event: cluster outage
+msg.evOutage: "The GPU cluster goes down 72 hours before the deadline. Jobs evaporate."
+# Event: windfall
+msg.evWindfall: "An unexpected industry gift / supplemental award lands in your account."
+
+# Endings
+msg.labImplodes: "**Game over.** Morale hit zero. Students transfer out, an anonymous letter circulates, and your lab quietly dissolves. The papers were never worth this."
+msg.bankrupt: "**Game over.** The funding ran dry. You can't make payroll; students scatter to other labs. You can't run a lab on fumes."
+msg.tenureGranted: "**TENURE GRANTED.** Strong papers, healthy lab, a name people know. You made it — and your students still talk to you. *The dream ending.*"
+msg.tenureBorderline: "**Tenure granted — barely.** The committee squinted at your reputation but the paper count carried you. You're in. Breathe."
+msg.tenureDenied: "**Tenure denied.** Not enough top-tier output, the committee says. You take the $700k industry offer you should've taken six years ago. **The real ending.**"

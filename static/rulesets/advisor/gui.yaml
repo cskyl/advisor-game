@@ -1,0 +1,64 @@
+---
+# Top stats bar: three core resources on the left, the tenure clock on the right.
+statsBar:
+  items:
+  - text: ui.moraleMeter
+    side: left
+    updateTrigger:
+      variables: ["lab.morale"]
+    conditionalStyles:
+    - condition: lab.morale > 40
+      styleClasses: ["normal"]
+    - condition: lab.morale <= 40 && lab.morale > 20
+      styleClasses: ["warning"]
+    - condition: lab.morale <= 20
+      styleClasses: ["critical"]
+  - text: ui.fundingMeter
+    side: left
+    updateTrigger:
+      variables: ["pi.funding"]
+    conditionalStyles:
+    - condition: pi.funding > 30
+      styleClasses: ["normal"]
+    - condition: pi.funding <= 30 && pi.funding > 15
+      styleClasses: ["warning"]
+    - condition: pi.funding <= 15
+      styleClasses: ["critical"]
+  - text: ui.reputationMeter
+    side: left
+    updateTrigger:
+      variables: ["pi.reputation", "pi.papers"]
+  - text: ui.timeMeter
+    side: right
+    updateTrigger:
+      variables: ["year", "month"]
+messageWindow:
+  typewriterSpeed: 30
+itemList:
+  title: ui.lab
+  raritySpecificStyles:
+  - minRarity: 10
+    styleClasses: ["r_legendary"]
+  - minRarity: 6
+    maxRarity: 9
+    styleClasses: ["r_rare"]
+  - minRarity: 3
+    maxRarity: 5
+    styleClasses: ["r_uncommon"]
+statusList:
+  title: ui.status
+footer:
+  preamble:
+  buttons:
+  - text: "English"
+    setLanguage: en
+  - text: "中文"
+    setLanguage: zh
+  - text: ui.helpButton
+    messageTitle: ui.helpTitle
+    message: ui.helpContent
+    confirmText: ui.ok
+  - text: ui.aboutButton
+    messageTitle: ui.aboutTitle
+    message: ui.aboutContent
+    confirmText: ui.ok

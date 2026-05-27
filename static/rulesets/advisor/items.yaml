@@ -1,0 +1,8 @@
+---
+# Items show up in the right-hand "Lab" panel. In the advisor sim we use them
+# as collectible badges / assets. Start minimal; add students, grants, awards.
+items:
+- id: starStudent      # a high-performer you recruited
+  rarity: 6
+- id: bestPaperAward   # prestige trophy
+  rarity: 10

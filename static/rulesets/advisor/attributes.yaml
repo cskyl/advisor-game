@@ -1,0 +1,10 @@
+---
+# Hidden "boost" attributes that status effects / items can modify.
+# Effects add up and are read in expressions via getAttributeValue('...').
+attributes:
+- id: pi.paperAcceptanceBoost   # added to a paper's acceptance probability
+  baseValue: 0
+- id: pi.moraleDrain            # extra morale lost each month (e.g. crunch)
+  baseValue: 0
+- id: pi.fundingBurn            # monthly funding spent on stipends/GPUs
+  baseValue: 3
