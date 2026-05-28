@@ -41,7 +41,7 @@
       month: 1
       year: 1
       lab.morale: 78            # ❤️ 0 -> lab implodes
-      pi.funding: 75            # 💰 stipends + GPUs drain this monthly
+      pi.funding: 100           # 💰 startup; stipends + GPUs drain this monthly
       pi.reputation: 20         # 📈 drives acceptance + attracts strong students
       lab.students: 2           # 👥 you start with two PhD students
       lab.compute: 0            # GPU tier 0..5; boosts production + acceptance
@@ -254,18 +254,28 @@
       actions:
       - id: Random
         groups:
-        # success scales with reputation: a junior PI lands ~43%, an established
-        # one up to ~70%. Bigger reputation also wins bigger awards.
-        - weight: clip(0.35 + pi.reputation / 250, 0.2, 0.7)
+        # JACKPOT — rare big award. Reputation tilts the odds upward.
+        - weight: clip(0.08 + pi.reputation / 500, 0.05, 0.22)
           actions:
           - id: UpdateVariables
             updates:
-              pi.funding: pi.funding + (randi(20) + 24 + floor(pi.reputation / 4))
+              pi.funding: pi.funding + (randi(50) + 70 + floor(pi.reputation / 3))
+              pi.reputation: pi.reputation + 2
+          - id: DisplayMessage
+            message: msg.actGrantBig
+            confirm: msg.celebrate
+        # MODEST grant — the common "yes."
+        - weight: clip(0.32 + pi.reputation / 400, 0.22, 0.55)
+          actions:
+          - id: UpdateVariables
+            updates:
+              pi.funding: pi.funding + (randi(20) + 15 + floor(pi.reputation / 5))
               pi.reputation: pi.reputation + 1
           - id: DisplayMessage
             message: msg.actGrantWin
             confirm: msg.great
-        - weight: clip(0.65 - pi.reputation / 250, 0.3, 0.8)
+        # TRIAGED — most attempts. A month gone.
+        - weight: clip(0.60 - pi.reputation / 300, 0.25, 0.73)
           actions:
           - id: UpdateVariables
             updates:
@@ -283,15 +293,15 @@
           pi.reputation: pi.reputation + 1 + min(pi.papers, 6) + randi(3)
       - id: Random
         groups:
-        - weight: 0.25
+        - weight: 0.15
           actions:
           - id: UpdateVariables
             updates:
-              pi.funding: pi.funding + (randi(15) + 10)
+              pi.funding: pi.funding + (randi(25) + 12)
           - id: DisplayMessage
             message: msg.actNetworkGift
             confirm: msg.great
-        - weight: 0.75
+        - weight: 0.85
           actions:
           - id: DisplayMessage
             message: msg.actNetworkDone
@@ -614,14 +624,14 @@
     updates:
       lab.progress: lab.progress - (randi(15) + 10)
 
-# A surprise gift / supplemental award lands.
+# A surprise gift / supplemental award. Rare but meaningful when it lands.
 - id: EvWindfall
   trigger: MonthBegin
-  probability: 0.04
+  probability: 0.025
   actions:
   - id: DisplayMessage
     message: msg.evWindfall
     confirm: msg.great
   - id: UpdateVariables
     updates:
-      pi.funding: pi.funding + (randi(25) + 15)
+      pi.funding: pi.funding + (randi(40) + 25)

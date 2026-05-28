@@ -44,6 +44,7 @@ msg.sigh: "*叹气*"
 msg.gulp: "……咽口水。"
 msg.argh: 啊啊啊！
 msg.fingersCrossed: 祈祷中……
+msg.celebrate: 🎉
 msg.restart: 开启新的时间线。
 
 # 开场
@@ -69,7 +70,8 @@ msg.actCrunchDone: "白板写满，实验开跑，Slack 彻夜不眠。进度猛
 msg.actMentor: "🤝 认真做一对一，挨个关心每个人。"
 msg.actMentorDone: "你真的在听。整个实验室的肩膀都松了下来，大家也都长进了一点。"
 msg.actGrant: "📝 把自己关起来写一份 grant。"
-msg.actGrantWin: "评审组很喜欢——基金到账。stipend 安全好一阵子了。"
+msg.actGrantBig: "🏆 **大基金到账。** 一笔多年期 grant 砸下来。实验室长期资金无忧，消息也传开了。"
+msg.actGrantWin: "评审组挺欣赏——一笔不大不小的 grant 到账。stipend 安全一阵子。"
 msg.actGrantFail: "被刷了。「提案很强，但本轮竞争力不足。」一个月就这么没了。"
 msg.actNetwork: "🎤 做报告、混 hallway track。"
 msg.actNetworkDone: "握手、一个播客邀约、两个新合作者。你的名字开始传开。"

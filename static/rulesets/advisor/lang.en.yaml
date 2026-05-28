@@ -45,6 +45,7 @@ msg.sigh: "*sigh*"
 msg.gulp: "...gulp."
 msg.argh: Argh!
 msg.fingersCrossed: Fingers crossed...
+msg.celebrate: 🎉
 msg.restart: Start a new timeline.
 
 # Opening
@@ -70,7 +71,8 @@ msg.actCrunchDone: "Whiteboards fill, jobs launch, Slack never sleeps. Progress 
 msg.actMentor: "🤝 Hold real 1:1s and check on everyone."
 msg.actMentorDone: "You actually listen. Shoulders unclench across the lab, and people sharpen a little."
 msg.actGrant: "📝 Lock yourself away and write a grant."
-msg.actGrantWin: "The panel loved it — the award lands. Stipends are safe for a good while."
+msg.actGrantBig: "🏆 **MAJOR award.** A multi-year grant lands. The lab is funded for a long stretch and the news travels."
+msg.actGrantWin: "The panel liked it — a modest award lands. Stipends are safe for a while."
 msg.actGrantFail: "Triaged. 'Strong proposal, but not competitive this cycle.' A month gone."
 msg.actNetwork: "🎤 Give talks and work the hallway track."
 msg.actNetworkDone: "Handshakes, a podcast invite, two new collaborators. Your name travels."
