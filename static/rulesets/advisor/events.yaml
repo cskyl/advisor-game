@@ -53,7 +53,7 @@
       conf.prestige: 1          # current venue's reputation multiplier
       tmp.acc: 0                # scratch: papers accepted this round
       tmp.rej: 0                # scratch: papers rejected this round
-      rule.papersForTenure: 14  # papers needed for the *dream* tenure ending
+      rule.papersForTenure: 10  # papers needed for the *dream* tenure ending
       rule.stipend: 2           # funding per student per month
       # --- derived, display-only vars (kept current by RecomputeDerived) ---
       hud.monthlyBurn: lab.students * rule.stipend + lab.compute - 2  # net funding/mo
@@ -254,17 +254,18 @@
       actions:
       - id: Random
         groups:
-        - weight: 0.55
+        # success scales with reputation: a junior PI lands ~43%, an established
+        # one up to ~70%. Bigger reputation also wins bigger awards.
+        - weight: clip(0.35 + pi.reputation / 250, 0.2, 0.7)
           actions:
           - id: UpdateVariables
             updates:
-              # bigger reputation wins bigger grants -> growth funds itself
-              pi.funding: pi.funding + (randi(22) + 26 + floor(pi.reputation / 4))
+              pi.funding: pi.funding + (randi(20) + 24 + floor(pi.reputation / 4))
               pi.reputation: pi.reputation + 1
           - id: DisplayMessage
             message: msg.actGrantWin
             confirm: msg.great
-        - weight: 0.45
+        - weight: clip(0.65 - pi.reputation / 250, 0.3, 0.8)
           actions:
           - id: UpdateVariables
             updates:
@@ -343,7 +344,7 @@
   actions:
   - id: UpdateVariables
     updates:
-      lab.progress: lab.progress + floor(lab.students * 6 * (1 + lab.compute * 0.20) * clip(lab.morale / 65, 0.4, 1.5) * clip(lab.talent, 0.7, 1.6))
+      lab.progress: lab.progress + floor(lab.students * 5 * (1 + lab.compute * 0.20) * clip(lab.morale / 65, 0.4, 1.5) * clip(lab.talent, 0.7, 1.6))
 
 # --- Conference submission: batch-submit ALL ready drafts to this venue -------
 #  Runs at deadline months, AFTER production. Banked progress is converted into
@@ -421,19 +422,36 @@
     statusId: tenureClock
     on: true
 
-# --- Recruiting season (Years 2-6): decide whether to grow the lab ----------
+# --- Recruiting season (Years 2-6): open the round at year start. ------------
+#  The actual menu lives in RecruitRound, fired at HIGH priority (2) so it runs
+#  before the month plays out (YearBegin=1, MonthBegin=0).
 - id: RecruitDecision
   trigger: YearBegin
   conditions:
   - id: Expression
     expression: year >= 2 && year <= 6
   actions:
+  - id: TriggerEvents
+    triggers:
+    - id: RecruitRound
+      priority: 2
+
+# --- One hiring decision. Picking a hire RE-OPENS the round, so you can recruit
+#  several people in a year as long as you can afford them (options hide when you
+#  can't, and the lab caps at 12). Picking "that's enough" ends the season.
+- id: RecruitRound
+  trigger: RecruitRound
+  actions:
+  - id: UpdateVariables          # refresh burn/runway shown in the prompt
+    updates:
+      hud.monthlyBurn: lab.students * rule.stipend + lab.compute - 2
+      hud.runway: floor(pi.funding / max(lab.students * rule.stipend + lab.compute - 2, 1))
   - id: DisplayChoices
     message: msg.recruitChoose
     choices:
-    # Strong PhD: needs a reputation to attract; brings talent + a head start.
+    # Strong PhD: needs reputation to attract; brings talent + a head start.
     - message: msg.recruitStrong
-      requirement: pi.reputation >= 32 && pi.funding >= 8
+      requirement: pi.reputation >= 32 && pi.funding >= 8 && lab.students < 12
       actions:
       - id: UpdateVariables
         updates:
@@ -448,9 +466,11 @@
       - id: DisplayMessage
         message: msg.recruitStrongDone
         confirm: msg.great
-    # Regular PhD: cheap, available to most labs; slight talent dilution + onboarding cost.
+      - id: TriggerEvents
+        triggers: [{ id: RecruitRound, priority: 2 }]
+    # Regular PhD: cheap; slight talent dilution + onboarding cost.
     - message: msg.recruitRegular
-      requirement: pi.funding >= 5
+      requirement: pi.funding >= 5 && lab.students < 12
       actions:
       - id: UpdateVariables
         updates:
@@ -461,9 +481,11 @@
       - id: DisplayMessage
         message: msg.recruitRegularDone
         confirm: msg.ok
+      - id: TriggerEvents
+        triggers: [{ id: RecruitRound, priority: 2 }]
     # Postdoc: expensive, immediate productivity + talent.
     - message: msg.recruitPostdoc
-      requirement: pi.funding >= 22
+      requirement: pi.funding >= 22 && lab.students < 12
       actions:
       - id: UpdateVariables
         updates:
@@ -474,12 +496,11 @@
       - id: DisplayMessage
         message: msg.recruitPostdocDone
         confirm: msg.great
-    # Hold steady this year.
+      - id: TriggerEvents
+        triggers: [{ id: RecruitRound, priority: 2 }]
+    # Stop recruiting for this year (does NOT re-open the round).
     - message: msg.recruitNone
       actions:
-      - id: UpdateVariables
-        updates:
-          lab.morale: lab.morale + 2
       - id: DisplayMessage
         message: msg.recruitNoneDone
         confirm: msg.ok
@@ -493,13 +514,13 @@
   actions:
   - id: Switch
     branches:
-    - condition: pi.papers >= rule.papersForTenure && pi.reputation >= 55
+    - condition: pi.papers >= rule.papersForTenure && pi.reputation >= 50
       actions:
       - id: EndGame
         message: msg.tenureGranted
         confirm: msg.restart
         winning: true
-    - condition: pi.papers >= 5
+    - condition: pi.papers >= 4
       actions:
       - id: EndGame
         message: msg.tenureBorderline

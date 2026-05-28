@@ -10,11 +10,13 @@ const TIER={top:{acc:-0.04,prestige:1.3}, mid:{acc:+0.08,prestige:0.9}};
 const P={
   startFund:75, startMorale:78, startRep:20, startStudents:2,
   stipend:2, baseSupport:2,
-  prodBase:6, moraleDen:65, computeMult:0.20,
+  prodBase:5, moraleDen:65, computeMult:0.20,
   moraleLo:0.4, moraleHi:1.5, talentLo:0.7, talentHi:1.6,
   acceptBase:0.45, acceptRepDiv:200,
-  grantWin:0.55, grantMin:26, grantSpan:22, grantRepDiv:4,
-  deadlineDrain:2, papersForTenure:14, dreamRep:55, borderline:5,
+  // grant success scales with reputation: junior PIs struggle, established win.
+  grantBase:0.35, grantWinRepDiv:250, grantWinLo:0.2, grantWinHi:0.7,
+  grantMin:24, grantSpan:20, grantRepDiv:4,
+  deadlineDrain:2, papersForTenure:10, dreamRep:50, borderline:4,
 };
 
 function sim(policy){
@@ -22,16 +24,18 @@ function sim(policy){
   for(let m=1;m<=72;m++){
     let year=Math.floor((m-1)/12)+1, month=((m-1)%12)+1;
     let deadline=CONF[month];
-    // sensible growth: only recruit with a healthy buffer that can sustain the higher burn
-    if(month===1 && year>=2 && year<=6 && policy==="grow" && s.funding >= 50){
-      if(s.rep>=32){s.students++;s.talent=clip(s.talent+0.12,0.6,1.8);s.prog+=12;s.funding-=8;s.morale+=3;}
-      else{s.students++;s.talent=clip(s.talent-0.04,0.6,1.8);s.funding-=5;s.morale-=2;}
+    // sensible growth: recruit while a healthy buffer remains (now multiple/year if rich)
+    if(month===1 && year>=2 && year<=6 && policy==="grow"){
+      while(s.funding >= 65 && s.students < 12){
+        if(s.rep>=32){s.students++;s.talent=clip(s.talent+0.12,0.6,1.8);s.prog+=12;s.funding-=8;s.morale+=3;}
+        else{s.students++;s.talent=clip(s.talent-0.04,0.6,1.8);s.funding-=5;s.morale-=2;}
+      }
     }
     let drain=1+(deadline?P.deadlineDrain:0)+(year>=4?1:0)+(year<=1?-1:0);
     s.funding-=s.students*P.stipend+s.compute-P.baseSupport; s.morale-=drain;
     if(s.morale<=0||s.funding<=0||s.students<=0){s.lost=true;break;}
     // balanced action policy
-    if(s.funding<30){ if(Math.random()<P.grantWin){s.funding+=ri(P.grantSpan)+P.grantMin+Math.floor(s.rep/P.grantRepDiv);s.rep+=1;}else s.morale-=2; }
+    if(s.funding<30){ let gw=clip(P.grantBase+s.rep/P.grantWinRepDiv,P.grantWinLo,P.grantWinHi); if(Math.random()<gw){s.funding+=ri(P.grantSpan)+P.grantMin+Math.floor(s.rep/P.grantRepDiv);s.rep+=1;}else s.morale-=2; }
     else if(s.morale<50) s.morale+=ri(8)+9;
     else if(s.compute<3 && s.funding>=(18+s.compute*9)+30){s.funding-=(18+s.compute*9);s.compute++;s.morale+=3;}
     else {s.prog+=ri(14)+12+(deadline?16:0);s.morale-=ri(5)+5;}

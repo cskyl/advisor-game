@@ -8,7 +8,7 @@ ui.lab: "Lab:"
 ui.status: "Status:"
 ui.helpButton: Help
 ui.helpTitle: Help
-ui.helpContent: "You're a brand-new AI assistant professor. Your **lab produces research every month** (faster with more students, better GPUs, higher morale, more talent), which banks into **drafts**. Major **conference deadlines** are months apart — ICML, NeurIPS, AAAI, CVPR — and at each one you submit *all* your ready drafts to that venue at once, so a bigger lab can land several papers in one deadline. Top venues are harder to crack but worth more reputation. Each **month** you pick one focus; each **year** you decide whether to recruit. Watch three meters: **Morale** (0 = the lab implodes), **Funding** (stipends + GPUs drain it monthly; 0 = bankrupt), and **Reputation** (drives acceptance and attracts strong students). At the **tenure review in Year 7**, a few solid papers earns tenure — **{{rule.papersForTenure}} papers and reputation ≥ 55** earns the *dream* ending."
+ui.helpContent: "You're a brand-new AI assistant professor. Your **lab produces research every month** (faster with more students, better GPUs, higher morale, more talent), which banks into **drafts**. Major **conference deadlines** are months apart — ICML, NeurIPS, AAAI, CVPR — and at each one you submit *all* your ready drafts to that venue at once, so a bigger lab can land several papers in one deadline. Top venues are harder to crack but worth more reputation. Each **month** you pick one focus; each **year** you decide whether to recruit. Watch three meters: **Morale** (0 = the lab implodes), **Funding** (stipends + GPUs drain it monthly; 0 = bankrupt), and **Reputation** (drives acceptance and attracts strong students). At the **tenure review in Year 7**, a few solid papers earns tenure — **{{rule.papersForTenure}} papers and reputation ≥ 50** earns the *dream* ending."
 ui.aboutButton: About
 ui.aboutTitle: About
 ui.aboutContent: "**Advisor Simulator** — you run an AI lab and chase tenure while keeping your students sane. A reskin of **PhD Simulator** by Mianzhi Wang (MIT). The game is pure data; edit the YAML in `static/rulesets/advisor` to mod it."
@@ -88,15 +88,15 @@ msg.confResults: "**The reviews are in.** Accepted: **{{tmp.acc}}** · Rejected:
 msg.confNothingReady: "Nothing was ready in time for this deadline. The drafts will have to wait for the next venue."
 
 # Recruiting
-msg.recruitChoose: "Recruiting season. Applications are in. Who joins the lab this year? *(Each student adds {{rule.stipend}}/month to your stipend bill; you're at −{{hud.monthlyBurn}}/mo with ~{{hud.runway}} months of funding.)*"
+msg.recruitChoose: "Recruiting season. Bring someone on? **You can hire as many as you can afford** — you'll be asked again after each. *(Each student adds {{rule.stipend}}/month to your stipend bill; you're at −{{hud.monthlyBurn}}/mo with ~{{hud.runway}} months of funding.)*"
 msg.recruitStrong: "Recruit a standout PhD (−8 funding; needs reputation; brings talent)."
 msg.recruitStrongDone: "A coveted admit picks *your* lab over the offers. The whole group levels up."
 msg.recruitRegular: "Recruit a solid, regular PhD student (−5 funding)."
 msg.recruitRegularDone: "A capable new student joins. Onboarding takes a bit, and the stipend bill grows."
 msg.recruitPostdoc: "Hire a postdoc (−22 funding; expensive, immediately productive)."
 msg.recruitPostdocDone: "An experienced postdoc arrives and hits the ground running — at a real cost to the budget."
-msg.recruitNone: "Hold steady — no new hires this year."
-msg.recruitNoneDone: "You keep the lab lean and close-knit. Sometimes that's the wise move."
+msg.recruitNone: "That's enough hiring for this year."
+msg.recruitNoneDone: "You keep the lab at a size you can actually fund. Sometimes that's the wise move."
 
 # Student leaves
 msg.studentQuits: "Morale has been underwater too long. A student quietly transfers to another lab. The room feels emptier."

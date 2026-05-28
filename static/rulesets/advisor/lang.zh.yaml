@@ -7,7 +7,7 @@ ui.lab: "实验室："
 ui.status: "状态："
 ui.helpButton: 帮助
 ui.helpTitle: 帮助
-ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会产出研究**（学生越多、GPU 越强、士气越高、平均水平越好，出活越快），这些会攒成 **草稿**。几个主要的 **会议 deadline** 相隔数月——ICML、NeurIPS、AAAI、CVPR——每到一个，你就把手头 *所有* 攒好的草稿一次性投到那个会，所以实验室越大，一次 deadline 能中的论文越多。顶会更难中，但声誉回报更高。每个 **月** 选一件事专注去做；每 **年** 决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。**第 7 年 tenure 评审** 时：几篇像样的论文就能拿到 tenure；攒够 **{{rule.papersForTenure}} 篇且声誉 ≥ 55** 才能拿到 *梦想* 结局。"
+ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会产出研究**（学生越多、GPU 越强、士气越高、平均水平越好，出活越快），这些会攒成 **草稿**。几个主要的 **会议 deadline** 相隔数月——ICML、NeurIPS、AAAI、CVPR——每到一个，你就把手头 *所有* 攒好的草稿一次性投到那个会，所以实验室越大，一次 deadline 能中的论文越多。顶会更难中，但声誉回报更高。每个 **月** 选一件事专注去做；每 **年** 决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。**第 7 年 tenure 评审** 时：几篇像样的论文就能拿到 tenure；攒够 **{{rule.papersForTenure}} 篇且声誉 ≥ 50** 才能拿到 *梦想* 结局。"
 ui.aboutButton: 关于
 ui.aboutTitle: 关于
 ui.aboutContent: "**导师模拟器** —— 你经营一个 AI 实验室，一边冲 tenure，一边别把学生逼疯。改编自 Mianzhi Wang 的 **PhD Simulator**（MIT）。游戏纯数据驱动，编辑 `static/rulesets/advisor` 里的 YAML 即可改。"
@@ -87,15 +87,15 @@ msg.confResults: "**审稿结果出来了。** 接收：**{{tmp.acc}}** · 被�
 msg.confNothingReady: "这次 deadline 没有攒够能投的草稿。只能等下一个会了。"
 
 # 招生
-msg.recruitChoose: "招生季。申请都到齐了。今年谁加入实验室？*（每多一个学生，每月 stipend 账单 +{{rule.stipend}}；你目前每月 −{{hud.monthlyBurn}}，约够 {{hud.runway}} 个月。）*"
+msg.recruitChoose: "招生季。要招人吗？**有钱就能一直招** —— 每招一个会再问一次。*（每多一个学生，每月 stipend 账单 +{{rule.stipend}}；你目前每月 −{{hud.monthlyBurn}}，约够 {{hud.runway}} 个月。）*"
 msg.recruitStrong: "招一位顶尖博士生（−8 经费；需要声誉；带来水平提升）。"
 msg.recruitStrongDone: "一个抢手的录取者，在众多 offer 里选了 *你的* 实验室。整个组都上了一个台阶。"
 msg.recruitRegular: "招一位踏实的普通博士生（−5 经费）。"
 msg.recruitRegularDone: "一位有能力的新生加入了。上手要点时间，stipend 账单也涨了。"
 msg.recruitPostdoc: "聘一位博士后（−22 经费；很贵，但立刻能产出）。"
 msg.recruitPostdocDone: "一位经验丰富的博士后到岗，立刻进入状态——代价是预算实打实地缩水。"
-msg.recruitNone: "维持现状——今年不招人。"
-msg.recruitNoneDone: "你让实验室保持精简而紧密。有时候这才是明智之举。"
+msg.recruitNone: "今年招到这里就够了。"
+msg.recruitNoneDone: "你把实验室控制在养得起的规模。有时候这才是明智之举。"
 
 # 学生离开
 msg.studentQuits: "士气在水下泡得太久了。一名学生悄悄转去了别的 lab。屋子显得空了一些。"
