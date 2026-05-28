@@ -2,9 +2,14 @@
 # Timed / permanent status effects. `duration` is in months (Infinity = forever).
 # Effects apply attributeModifiers while active.
 status:
-# Pre-tenure honeymoon: first year is a little easier on morale drain.
+# Pre-tenure honeymoon: first year cancels out the baseline morale drain.
 - id: newFaculty
   duration: 12
+  effects:
+  - attributeModifiers:
+    - target: pi.moraleDrain
+      type: Absolute
+      amount: -1
 # A conference deadline window: encourages pushing the lab.
 - id: deadlineCrunch
   duration: 2
@@ -12,7 +17,7 @@ status:
   - attributeModifiers:
     - target: pi.moraleDrain
       type: Absolute
-      amount: 4          # crunch quietly burns morale every month
+      amount: 3          # crunch quietly burns morale every month
 # A strong rebuttal buff: temporarily raises acceptance odds.
 - id: strongRebuttal
   duration: 2

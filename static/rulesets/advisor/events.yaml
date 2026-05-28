@@ -1,17 +1,29 @@
 ---
 # ============================================================================
-#  导师模拟器 / Advisor Simulator — event ruleset (skeleton vertical slice)
-#  You play a fresh AI assistant professor. Survive 6 years to tenure while
-#  juggling three resources: Funding, Reputation, and Lab Morale.
+#  导师模拟器 / Advisor Simulator — event ruleset (v2: lab + recruiting + budget)
 #
-#  Everything here is data. To design the game you mostly add/edit events.
-#  Engine actions available: UpdateVariables, UpdateVariableLimits, SetStatus,
-#  GiveItem, DisplayMessage, DisplayChoices, Random, Switch, TriggerEvents,
-#  EndGame. Expressions support: + - * / %, ===, &&, ||, randi(n), floor(),
-#  getAttributeValue('id'), hasStatus('id').
+#  You are a new AI assistant professor. Run a lab, chase tenure (Year 7),
+#  and don't burn anyone out. Key systems:
+#   - LAB PRODUCES PAPERS AUTOMATICALLY each month, scaling with #students,
+#     GPU tier (compute), morale, and avg talent. More/better students = faster.
+#   - Each YEAR you decide whether to RECRUIT (strong PhD / regular PhD / postdoc
+#     / none) — gated by reputation and funding.
+#   - FUNDING is a budget you allocate: stipends drain it monthly (per student),
+#     and you can spend it on GPUs or a postdoc. Run out -> bankrupt.
+#   - Each MONTH you pick ONE focus that shapes the lab on top of its baseline.
+#
+#  Events under the same trigger run in DEFINITION ORDER below, so ordering is
+#  intentional: upkeep -> lose-checks -> action -> production -> paper verdict
+#  -> random cards.
+#
+#  Engine actions: UpdateVariables, UpdateVariableLimits, SetStatus, GiveItem,
+#  DisplayMessage, DisplayChoices (choices take an optional `requirement` expr),
+#  Random (groups+weight), Switch (every branch needs a condition), EndGame.
+#  Functions: randi(n), floor, round, ceil, min, max, clip(x,lo,hi),
+#  hasStatus('id'), getAttributeValue('id'). Booleans act as 1/0 in arithmetic.
 # ============================================================================
 
-# --- Boot: set initial state -----------------------------------------------
+# --- Boot -------------------------------------------------------------------
 - id: Init
   trigger: Initialization
   once: true
@@ -19,24 +31,30 @@
   - id: UpdateVariableLimits
     updates:
       lab.morale: [0, 100]
-      pi.funding: [0, 100]
       pi.reputation: [0, 100]
+      lab.compute: [0, 5]
+      lab.students: [0, 12]
+      pi.funding: [0, 9999]
   - id: UpdateVariables
     updates:
       elapsedMonth: 0
       month: 1
       year: 1
-      lab.morale: 75            # ❤️ if this hits 0 the lab implodes
-      pi.funding: 50            # 💰 stipends + GPUs burn this every month
-      pi.reputation: 20         # 📈 drives paper acceptance + tenure
-      pi.papers: 0              # accepted top-tier papers
-      pi.paperProgress: 0       # 0..100; at 100 a paper is submitted
-      rule.papersForTenure: 6   # tenure target (tune for difficulty)
+      lab.morale: 75            # ❤️ 0 -> lab implodes
+      pi.funding: 70            # 💰 stipends + GPUs drain this monthly
+      pi.reputation: 18         # 📈 drives acceptance + attracts strong students
+      lab.students: 2           # 👥 you start with two PhD students
+      lab.compute: 0            # GPU tier 0..5; boosts production + acceptance
+      lab.talent: 1.0           # average student quality multiplier
+      pi.papers: 0
+      lab.progress: 0           # banked research; 100 = one submittable paper
+      rule.papersForTenure: 10  # papers needed for the *dream* tenure ending
+      rule.stipend: 2           # funding per student per month
   - id: SetStatus
     statusId: newFaculty
     on: true
 
-# --- Master clock: advance month/year, fan out triggers ---------------------
+# --- Master clock -----------------------------------------------------------
 - id: GameTick
   trigger: Tick
   actions:
@@ -57,7 +75,7 @@
     triggers:
     - id: MonthBegin
 
-# --- Opening cutscene -------------------------------------------------------
+# --- Opening ----------------------------------------------------------------
 - id: TheBeginning
   trigger: MonthBegin
   once: true
@@ -77,13 +95,28 @@
         confirm: msg.restart
         winning: true
 
+# --- Deadline season: ICML(1) / NeurIPS(5) / ICLR(9). Sets the crunch mood. -
+- id: DeadlineSeason
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: month === 1 || month === 5 || month === 9
+  actions:
+  - id: SetStatus
+    statusId: deadlineCrunch
+    on: true
+  - id: DisplayMessage
+    message: msg.deadlineSeason
+    confirm: msg.ok
+
 # --- Monthly upkeep: pay the lab, apply morale drain ------------------------
 - id: MonthlyUpkeep
   trigger: MonthBegin
   actions:
   - id: UpdateVariables
     updates:
-      pi.funding: pi.funding - getAttributeValue('pi.fundingBurn')
+      # stipends scale with headcount; GPUs cost upkeep; +3 institutional support
+      pi.funding: pi.funding - (lab.students * rule.stipend) - lab.compute + 3
       lab.morale: lab.morale - getAttributeValue('pi.moraleDrain')
 
 # --- Lose conditions --------------------------------------------------------
@@ -107,8 +140,206 @@
     message: msg.bankrupt
     confirm: msg.restart
     winning: false
+- id: LabEmpty
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: lab.students <= 0
+  actions:
+  - id: EndGame
+    message: msg.labEmpty
+    confirm: msg.restart
+    winning: false
 
-# --- Tenure clock pressure (years 4+) --------------------------------------
+# --- A student quits if morale stays in the gutter --------------------------
+- id: StudentQuits
+  trigger: MonthBegin
+  probability: 0.20
+  conditions:
+  - id: Expression
+    expression: lab.morale < 30 && lab.students >= 1
+  actions:
+  - id: UpdateVariables
+    updates:
+      lab.students: lab.students - 1
+      lab.morale: lab.morale + 8   # the survivors feel the (grim) relief
+  - id: DisplayMessage
+    message: msg.studentQuits
+    confirm: msg.sigh
+
+# --- THE monthly decision: your one focus this month ------------------------
+- id: MonthlyAction
+  trigger: MonthBegin
+  actions:
+  - id: DisplayChoices
+    message: msg.chooseAction
+    choices:
+    # 1) Crunch toward the deadline: big burst (bigger in deadline season).
+    - message: msg.actCrunch
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.progress: lab.progress + randi(14) + 12 + hasStatus('deadlineCrunch') * 16
+          lab.morale: lab.morale - (randi(6) + 6)
+      - id: DisplayMessage
+        message: msg.actCrunchDone
+        confirm: msg.ok
+    # 2) Mentor / 1:1s: morale up.
+    - message: msg.actMentor
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale + (randi(8) + 8)
+          lab.talent: clip(lab.talent + 0.02, 0.6, 1.8)   # people grow
+      - id: DisplayMessage
+        message: msg.actMentorDone
+        confirm: msg.ok
+    # 3) Write a grant: chance of a funding windfall.
+    - message: msg.actGrant
+      actions:
+      - id: Random
+        groups:
+        - weight: 0.6
+          actions:
+          - id: UpdateVariables
+            updates:
+              # bigger reputation wins bigger grants -> growth funds itself
+              pi.funding: pi.funding + (randi(25) + 30 + floor(pi.reputation / 4))
+              pi.reputation: pi.reputation + 1
+          - id: DisplayMessage
+            message: msg.actGrantWin
+            confirm: msg.great
+        - weight: 0.4
+          actions:
+          - id: UpdateVariables
+            updates:
+              lab.morale: lab.morale - 2
+          - id: DisplayMessage
+            message: msg.actGrantFail
+            confirm: msg.sigh
+    # 4) Network / give talks: reputation up, small chance of an industry gift.
+    - message: msg.actNetwork
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.reputation: pi.reputation + (randi(6) + 4)
+      - id: Random
+        groups:
+        - weight: 0.25
+          actions:
+          - id: UpdateVariables
+            updates:
+              pi.funding: pi.funding + (randi(15) + 10)
+          - id: DisplayMessage
+            message: msg.actNetworkGift
+            confirm: msg.great
+        - weight: 0.75
+          actions:
+          - id: DisplayMessage
+            message: msg.actNetworkDone
+            confirm: msg.ok
+    # 5) Protect work-life balance: morale up, fall a little behind.
+    - message: msg.actRest
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale + (randi(7) + 6)
+          pi.reputation: pi.reputation - 1
+      - id: DisplayMessage
+        message: msg.actRestDone
+        confirm: msg.ok
+    # 6) Buy GPUs (spend funding to raise compute). Only shown if affordable.
+    - message: msg.actCompute
+      requirement: pi.funding >= (18 + lab.compute * 9) && lab.compute < 5
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.funding: pi.funding - (18 + lab.compute * 9)
+          lab.compute: lab.compute + 1
+          lab.morale: lab.morale + 3   # everyone loves a bigger cluster
+      - id: DisplayMessage
+        message: msg.actComputeDone
+        confirm: msg.great
+    # 7) Polish & prep: buff acceptance odds for the next 2 months.
+    - message: msg.actPolish
+      actions:
+      - id: SetStatus
+        statusId: strongRebuttal
+        on: true
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale - 3
+      - id: DisplayMessage
+        message: msg.actPolishDone
+        confirm: msg.ok
+
+# --- Automatic research output: the lab works whether or not you do ---------
+- id: ResearchProduction
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: lab.students >= 1
+  actions:
+  - id: UpdateVariables
+    updates:
+      lab.progress: lab.progress + floor(lab.students * 3 * (1 + lab.compute * 0.18) * clip(lab.morale / 60, 0.4, 1.4) * clip(lab.talent, 0.7, 1.5))
+
+# --- Paper verdict: when banked progress tops 100, submit & resolve one ------
+- id: PaperResolution
+  trigger: MonthBegin
+  conditions:
+  - id: Expression
+    expression: lab.progress >= 100
+  actions:
+  - id: DisplayMessage
+    message: msg.paperSubmitted
+    confirm: msg.fingersCrossed
+  - id: Random
+    groups:
+    # ACCEPTED — odds rise with reputation, compute, and the polish buff.
+    - weight: clip(0.42 + pi.reputation / 200 + getAttributeValue('pi.paperAcceptanceBoost') + lab.compute * 0.03, 0.1, 0.92)
+      actions:
+      - id: UpdateVariables
+        updates:
+          pi.papers: pi.papers + 1
+          pi.reputation: pi.reputation + (randi(3) + 4)
+          lab.morale: lab.morale + (randi(5) + 6)
+          lab.progress: lab.progress - 100
+      # Small chance of a spotlight/oral with bonus prestige.
+      - id: Random
+        groups:
+        - weight: 0.15
+          actions:
+          - id: UpdateVariables
+            updates:
+              pi.reputation: pi.reputation + 6
+          - id: GiveItem
+            itemId: bestPaperAward
+            amount: 1
+          - id: DisplayMessage
+            message: msg.paperSpotlight
+            confirm: msg.celebrate
+        - weight: 0.85
+          actions:
+          - id: DisplayMessage
+            message: msg.paperAccepted
+            confirm: msg.celebrate
+    # REJECTED — Reviewer 2. Most of the work survives for a resubmission.
+    - weight: clip(0.58 - pi.reputation / 200 - getAttributeValue('pi.paperAcceptanceBoost') - lab.compute * 0.03, 0.08, 0.9)
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale - (randi(4) + 4)
+          lab.progress: lab.progress - 55   # keep ~45 toward the resubmission
+      - id: DisplayMessage
+        message: msg.paperRejected
+        confirm: msg.reviewer2
+
+# ============================================================================
+#  YEARLY EVENTS
+# ============================================================================
+
+# --- Tenure clock starts loudly in Year 4 -----------------------------------
 - id: TenureClockStarts
   trigger: YearBegin
   once: true
@@ -123,110 +354,70 @@
     statusId: tenureClock
     on: true
 
-# --- THE monthly decision: how do you spend your attention? -----------------
-- id: MonthlyAction
-  trigger: MonthBegin
-  actions:
-  - id: DisplayChoices
-    message: msg.chooseAction
-    choices:
-    # 1) Push the lab toward a deadline: progress up, morale down.
-    - message: msg.actPush
-      actions:
-      - id: UpdateVariables
-        updates:
-          pi.paperProgress: pi.paperProgress + (randi(20) + 12)
-          lab.morale: lab.morale - (randi(6) + 6)
-      - id: DisplayMessage
-        message: msg.actPushDone
-        confirm: msg.ok
-    # 2) Mentor / 1:1s: morale up, nothing else advances.
-    - message: msg.actMentor
-      actions:
-      - id: UpdateVariables
-        updates:
-          lab.morale: lab.morale + (randi(8) + 7)
-      - id: DisplayMessage
-        message: msg.actMentorDone
-        confirm: msg.ok
-    # 3) Write a grant: chance of funding windfall, else wasted month.
-    - message: msg.actGrant
-      actions:
-      - id: Random
-        groups:
-        - weight: 0.45
-          actions:
-          - id: UpdateVariables
-            updates:
-              pi.funding: pi.funding + (randi(25) + 15)
-              pi.reputation: pi.reputation + 1
-          - id: DisplayMessage
-            message: msg.actGrantWin
-            confirm: msg.great
-        - weight: 0.55
-          actions:
-          - id: UpdateVariables
-            updates:
-              lab.morale: lab.morale - 2
-          - id: DisplayMessage
-            message: msg.actGrantFail
-            confirm: msg.sigh
-    # 4) Network / give talks: reputation up.
-    - message: msg.actNetwork
-      actions:
-      - id: UpdateVariables
-        updates:
-          pi.reputation: pi.reputation + (randi(6) + 3)
-      - id: DisplayMessage
-        message: msg.actNetworkDone
-        confirm: msg.ok
-    # 5) Protect work-life balance: morale up, you fall a little behind.
-    - message: msg.actRest
-      actions:
-      - id: UpdateVariables
-        updates:
-          lab.morale: lab.morale + (randi(6) + 5)
-          pi.reputation: pi.reputation - 1
-      - id: DisplayMessage
-        message: msg.actRestDone
-        confirm: msg.ok
-
-# --- Paper submission + reviewer verdict (fires when progress fills up) ------
-- id: PaperSubmission
-  trigger: MonthBegin
+# --- Recruiting season (Years 2-6): decide whether to grow the lab ----------
+- id: RecruitDecision
+  trigger: YearBegin
   conditions:
   - id: Expression
-    expression: pi.paperProgress >= 100
+    expression: year >= 2 && year <= 6
   actions:
-  - id: DisplayMessage
-    message: msg.paperSubmitted
-    confirm: msg.fingersCrossed
-  # Acceptance probability rises with reputation and any rebuttal buff.
-  # Random normalizes group weights, so accept-weight=p, reject-weight=1-p.
-  - id: Random
-    groups:
-    - weight: 0.30 + pi.reputation / 250 + getAttributeValue('pi.paperAcceptanceBoost')
-      actions:   # ACCEPTED
+  - id: DisplayChoices
+    message: msg.recruitChoose
+    choices:
+    # Strong PhD: needs a reputation to attract; brings talent + a head start.
+    - message: msg.recruitStrong
+      requirement: pi.reputation >= 32 && pi.funding >= 8
+      actions:
       - id: UpdateVariables
         updates:
-          pi.papers: pi.papers + 1
-          pi.reputation: pi.reputation + 9
-          lab.morale: lab.morale + 8
-          pi.paperProgress: pi.paperProgress - 100
+          lab.students: lab.students + 1
+          lab.talent: clip(lab.talent + 0.12, 0.6, 1.8)
+          lab.progress: lab.progress + 12
+          pi.funding: pi.funding - 8
+          lab.morale: lab.morale + 3
+      - id: GiveItem
+        itemId: starStudent
+        amount: 1
       - id: DisplayMessage
-        message: msg.paperAccepted
-        confirm: msg.celebrate
-    - weight: 0.70 - pi.reputation / 250 - getAttributeValue('pi.paperAcceptanceBoost')
-      actions:   # REJECTED (Reviewer 2)
+        message: msg.recruitStrongDone
+        confirm: msg.great
+    # Regular PhD: cheap, available to most labs; slight talent dilution + onboarding cost.
+    - message: msg.recruitRegular
+      requirement: pi.funding >= 5
+      actions:
       - id: UpdateVariables
         updates:
-          lab.morale: lab.morale - 6
-          pi.paperProgress: 45   # resubmit from a partial draft
+          lab.students: lab.students + 1
+          lab.talent: clip(lab.talent - 0.04, 0.6, 1.8)
+          pi.funding: pi.funding - 5
+          lab.morale: lab.morale - 2
       - id: DisplayMessage
-        message: msg.paperRejected
-        confirm: msg.reviewer2
+        message: msg.recruitRegularDone
+        confirm: msg.ok
+    # Postdoc: expensive, immediate productivity + talent.
+    - message: msg.recruitPostdoc
+      requirement: pi.funding >= 22
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.students: lab.students + 1
+          lab.talent: clip(lab.talent + 0.18, 0.6, 1.8)
+          lab.progress: lab.progress + 28
+          pi.funding: pi.funding - 22
+      - id: DisplayMessage
+        message: msg.recruitPostdocDone
+        confirm: msg.great
+    # Hold steady this year.
+    - message: msg.recruitNone
+      actions:
+      - id: UpdateVariables
+        updates:
+          lab.morale: lab.morale + 2
+      - id: DisplayMessage
+        message: msg.recruitNoneDone
+        confirm: msg.ok
 
-# --- Tenure review: the endgame (start of year 7) ---------------------------
+# --- Tenure review: the endgame (start of Year 7) ---------------------------
 - id: TenureReview
   trigger: YearBegin
   conditions:
@@ -235,19 +426,19 @@
   actions:
   - id: Switch
     branches:
-    - condition: pi.papers >= rule.papersForTenure && pi.reputation >= 50
+    - condition: pi.papers >= rule.papersForTenure && pi.reputation >= 55
       actions:
       - id: EndGame
         message: msg.tenureGranted
         confirm: msg.restart
         winning: true
-    - condition: pi.papers >= rule.papersForTenure
+    - condition: pi.papers >= 6
       actions:
       - id: EndGame
         message: msg.tenureBorderline
         confirm: msg.restart
         winning: true
-    - condition: 1   # always-true fallback: denied
+    - condition: 1
       actions:
       - id: EndGame
         message: msg.tenureDenied
@@ -255,23 +446,21 @@
         winning: false
 
 # ============================================================================
-#  RANDOM EVENT CARDS — add as many as you like. Each is just an event with a
-#  probability and (optionally) conditions. This is where the game's flavor and
-#  replayability live.
+#  RANDOM EVENT CARDS — add freely; this is where flavor & replayability live.
 # ============================================================================
 
-# Reviewer 2 strikes mid-cycle.
+# Reviewer 2 strikes a paper in progress.
 - id: EvReviewer2
   trigger: MonthBegin
   probability: 0.06
   conditions:
   - id: Expression
-    expression: pi.paperProgress > 0 && pi.paperProgress < 100
+    expression: lab.progress > 20 && lab.progress < 100
   actions:
   - id: DisplayChoices
     message: msg.evReviewer2
     choices:
-    - message: msg.evReviewer2Fight   # write a strong rebuttal
+    - message: msg.evReviewer2Fight
       actions:
       - id: SetStatus
         statusId: strongRebuttal
@@ -282,11 +471,11 @@
       - id: DisplayMessage
         message: msg.evReviewer2FightDone
         confirm: msg.ok
-    - message: msg.evReviewer2Concede  # withdraw and regroup
+    - message: msg.evReviewer2Concede
       actions:
       - id: UpdateVariables
         updates:
-          pi.paperProgress: pi.paperProgress - 25
+          lab.progress: lab.progress - 20
       - id: DisplayMessage
         message: msg.evReviewer2ConcedeDone
         confirm: msg.ok
@@ -294,30 +483,29 @@
 # A star student gets a huge industry offer.
 - id: EvIndustryOffer
   trigger: MonthBegin
-  once: true
-  probability: 0.05
+  probability: 0.045
   conditions:
   - id: Expression
-    expression: year >= 2
+    expression: year >= 2 && lab.students >= 2
   actions:
   - id: DisplayChoices
     message: msg.evOffer
     choices:
-    - message: msg.evOfferBless    # let them go — good karma, lose labor
+    - message: msg.evOfferBless
       actions:
       - id: UpdateVariables
         updates:
-          pi.reputation: pi.reputation + 4
+          lab.students: lab.students - 1
+          pi.reputation: pi.reputation + 5
           lab.morale: lab.morale + 6
-          pi.paperProgress: pi.paperProgress - 20
       - id: DisplayMessage
         message: msg.evOfferBlessDone
         confirm: msg.ok
-    - message: msg.evOfferGuilt     # guilt them into staying
+    - message: msg.evOfferGuilt
       actions:
       - id: UpdateVariables
         updates:
-          pi.paperProgress: pi.paperProgress + 15
+          lab.progress: lab.progress + 15
           lab.morale: lab.morale - 12
       - id: DisplayMessage
         message: msg.evOfferGuiltDone
@@ -329,16 +517,16 @@
   probability: 0.05
   conditions:
   - id: Expression
-    expression: pi.paperProgress >= 40
+    expression: lab.progress >= 35
   actions:
   - id: DisplayMessage
     message: msg.evOutage
     confirm: msg.argh
   - id: UpdateVariables
     updates:
-      pi.paperProgress: pi.paperProgress - (randi(15) + 10)
+      lab.progress: lab.progress - (randi(15) + 10)
 
-# A surprise gift / grant lands.
+# A surprise gift / supplemental award lands.
 - id: EvWindfall
   trigger: MonthBegin
   probability: 0.04
@@ -348,4 +536,4 @@
     confirm: msg.great
   - id: UpdateVariables
     updates:
-      pi.funding: pi.funding + (randi(20) + 10)
+      pi.funding: pi.funding + (randi(25) + 15)

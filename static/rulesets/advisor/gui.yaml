@@ -24,10 +24,14 @@ statsBar:
       styleClasses: ["warning"]
     - condition: pi.funding <= 15
       styleClasses: ["critical"]
+  - text: ui.labMeter
+    side: left
+    updateTrigger:
+      variables: ["lab.students", "lab.compute"]
   - text: ui.reputationMeter
     side: left
     updateTrigger:
-      variables: ["pi.reputation", "pi.papers"]
+      variables: ["pi.reputation", "pi.papers", "rule.papersForTenure"]
   - text: ui.timeMeter
     side: right
     updateTrigger:

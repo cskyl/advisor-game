@@ -1,23 +1,39 @@
 ---
 # ============================================================================
-#  导师模拟器 —— 中文文本。键名与 events/gui 的 YAML 对应。
-#  {{var}} 会插入游戏变量；支持 **加粗** / *斜体* markdown。
+#  导师模拟器 —— 中文文本。{{var}} 插入游戏变量；支持 **加粗** / *斜体*。
 # ============================================================================
 ui.ok: 好。
 ui.lab: "实验室："
 ui.status: "状态："
 ui.helpButton: 帮助
 ui.helpTitle: 帮助
-ui.helpContent: "你是一位刚入职的 **AI 助理教授**。每个月只能选 **一件事** 专注去做。要平衡三个指标：**士气**（学生的身心状态，归零实验室就崩了）、**经费**（每月发 stipend、买 GPU 都在烧钱，归零你就破产）、**声誉**（决定论文中稿率和 tenure）。把论文进度推到 100% 就会投稿；声誉越高越能扛住 **Reviewer 2**。撑到 **第 7 年初的 tenure 评审**，攒够中稿论文就赢了。"
+ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会自动产出论文**——学生越多、GPU 越强、士气越高、平均水平越好，出活越快。每个 **月** 你在此之上额外选一件事专注去做；每 **年** 你决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。在 **第 7 年初的 tenure 评审** 前攒够 **{{rule.papersForTenure}} 篇中稿论文**（且声誉 ≥ 55）即可拿到最好结局。"
 ui.aboutButton: 关于
 ui.aboutTitle: 关于
-ui.aboutContent: "**导师模拟器** —— 你经营一个 AI 实验室，一边冲 tenure，一边别把学生逼疯。改编自 Mianzhi Wang 的 **PhD Simulator**（MIT 协议）。这是一个骨架 ruleset，编辑 `static/rulesets/advisor` 里的 YAML 即可扩展。"
+ui.aboutContent: "**导师模拟器** —— 你经营一个 AI 实验室，一边冲 tenure，一边别把学生逼疯。改编自 Mianzhi Wang 的 **PhD Simulator**（MIT）。游戏纯数据驱动，编辑 `static/rulesets/advisor` 里的 YAML 即可改。"
 
 # 指标
 ui.moraleMeter: "❤ 士气 {{lab.morale}}/100"
-ui.fundingMeter: "$ 经费 {{pi.funding}}/100"
-ui.reputationMeter: "★ 声誉 {{pi.reputation}} · 论文 {{pi.papers}}"
+ui.fundingMeter: "$ 经费 {{pi.funding}}"
+ui.labMeter: "👥 {{lab.students}} 人 · GPU {{lab.compute}} 级"
+ui.reputationMeter: "★ 声誉 {{pi.reputation}} · 论文 {{pi.papers}}/{{rule.papersForTenure}}"
 ui.timeMeter: "第 {{year}} 年 {{month}} 月"
+
+# 物品（显示在实验室面板）
+item.starStudent: 明星学生
+item.starStudent.description: 你成功招到的一位顶尖博士生，拉高了实验室的平均水平。
+item.bestPaperAward: 最佳论文奖
+item.bestPaperAward.description: 一篇 spotlight/oral，惊艳全场。纯声望。
+
+# 状态
+status.newFaculty: 新晋教职
+status.newFaculty.description: 第一年蜜月期——免掉每月的基础士气衰减。
+status.deadlineCrunch: Deadline 冲刺
+status.deadlineCrunch.description: 会议 deadline 临近。此时催进度收益更大，但士气烧得更快。
+status.strongRebuttal: 打磨投稿
+status.strongRebuttal.description: 写作和 rebuttal 格外用心，中稿率短期提升。
+status.tenureClock: tenure 倒计时
+status.tenureClock.description: 材料快要交了。整个实验室头顶一层低沉而持续的压力。
 
 # 通用确认按钮
 msg.ok: 好。
@@ -32,56 +48,79 @@ msg.reviewer2: 该死的 Reviewer 2。
 msg.restart: 开启新的时间线。
 
 # 开场
-msg.beginning: "恭喜——你接受了某校 **计算机系助理教授** 的 offer。你有一笔启动经费、一间空荡荡的实验室，以及六年后的 tenure 大考。接下这份工作吗？"
+msg.beginning: "恭喜——你接受了某校 **计算机系助理教授** 的 offer。你有一笔启动经费、两名跃跃欲试的博士生，以及六年后的 tenure 大考。接下这份工作吗？"
 msg.acceptJob: 接受 offer，搬进我的新办公室。
-msg.acceptedJob: "你挂上学位证、摆好咖啡机，发出第一个博士招生帖。倒计时，从现在开始。"
+msg.acceptedJob: "你挂上学位证、摆好咖啡机，见了两位学生。倒计时，从现在开始。"
 msg.declineJob: 拒绝——去拿那份 60 万美元的业界研究员 offer。
 msg.declinedJob: "你加入一家大厂 AI lab，做出被千万人使用的模型，每晚睡满八小时。这是对的选择吗？你永远不会知道。**（算你赢了，某种意义上。）**"
+
+# Deadline 季
+msg.deadlineSeason: "**Deadline 季到了。** 整个领域都在冲刺。此刻催实验室收益更大——但每个人都在靠最后一口气硬撑。"
 
 # tenure 倒计时
 msg.tenureClockStarts: "第 4 年。系主任「温柔地提醒」你：tenure 材料三年后就要交了。倒计时的滴答声，现在响得震耳。"
 
 # 每月行动
-msg.chooseAction: "新的一个月。你把有限的精力投向哪里？"
-msg.actPush: "🔬 催实验室冲下一个 deadline。"
-msg.actPushDone: "白板写满，实验开跑，Slack 彻夜不眠。进度涨了——疲惫也涨了。"
+msg.chooseAction: "新的一个月。实验室本就在运转——*你* 把精力投向哪里？"
+msg.actCrunch: "🔬 和实验室一起冲下一个 deadline。"
+msg.actCrunchDone: "白板写满，实验开跑，Slack 彻夜不眠。进度猛涨——疲惫也猛涨。"
 msg.actMentor: "🤝 认真做一对一，挨个关心每个人。"
-msg.actMentorDone: "你真的在听。整个实验室的肩膀都松了下来，大家又想起了当初为什么来这。"
+msg.actMentorDone: "你真的在听。整个实验室的肩膀都松了下来，大家也都长进了一点。"
 msg.actGrant: "📝 把自己关起来写一份 grant。"
-msg.actGrantWin: "评审组很喜欢——基金到账。stipend 暂时安全了。"
+msg.actGrantWin: "评审组很喜欢——基金到账。stipend 安全好一阵子了。"
 msg.actGrantFail: "被刷了。「提案很强，但本轮竞争力不足。」一个月就这么没了。"
 msg.actNetwork: "🎤 做报告、混 hallway track。"
 msg.actNetworkDone: "握手、一个播客邀约、两个新合作者。你的名字开始传开。"
+msg.actNetworkGift: "喝咖啡时，一位业界朋友提出给你实验室一笔 **无限制 gift**。当然要。"
 msg.actRest: "🌿 这个月守住 work-life balance。"
 msg.actRestDone: "周末不发邮件。实验室回了血；你稍微落后了热点节奏，但没关系。"
+msg.actCompute: "💻 花经费升级 GPU 集群。"
+msg.actComputeDone: "新节点上线。更大的 batch、更快的迭代——还有一个非常开心的实验室。"
+msg.actPolish: "✍️ 死磕写作、framing 和 rebuttal。"
+msg.actPolishDone: "接下来这一两篇投稿会更扎实，也更难被一句话打发。"
 
 # 论文流程
 msg.paperSubmitted: "一篇投稿在 deadline 前几分钟提交出去。现在，等三个匿名陌生人的裁决。"
 msg.paperAccepted: "**中了！** 实验室炸开了锅。每个人 CV 上多了一行实打实的成果，你的声誉也猛涨一截。"
-msg.paperRejected: "**被拒了。** 两个支持者，外加一个「觉得贡献增量有限」的 Reviewer 2。士气受挫；你整理心情，准备下一个 deadline。"
+msg.paperSpotlight: "**中了——还被选为 spotlight！** 报告现场座无虚席。你的声誉直线飙升。"
+msg.paperRejected: "**被拒了。** 两个支持者，外加一个「觉得贡献增量有限」的 Reviewer 2。士气下滑；不过大部分工作能留到下一个 deadline。"
+
+# 招生
+msg.recruitChoose: "招生季。申请都到齐了。今年谁加入实验室？"
+msg.recruitStrong: "招一位顶尖博士生（需要声誉；带来水平提升）。"
+msg.recruitStrongDone: "一个抢手的录取者，在众多 offer 里选了 *你的* 实验室。整个组都上了一个台阶。"
+msg.recruitRegular: "招一位踏实的普通博士生。"
+msg.recruitRegularDone: "一位有能力的新生加入了。上手要点时间，stipend 账单也涨了。"
+msg.recruitPostdoc: "聘一位博士后（很贵，但立刻能产出）。"
+msg.recruitPostdocDone: "一位经验丰富的博士后到岗，立刻进入状态——代价是预算实打实地缩水。"
+msg.recruitNone: "维持现状——今年不招人。"
+msg.recruitNoneDone: "你让实验室保持精简而紧密。有时候这才是明智之举。"
+
+# 学生离开
+msg.studentQuits: "士气在水下泡得太久了。一名学生悄悄转去了别的 lab。屋子显得空了一些。"
 
 # 事件：Reviewer 2
-msg.evReviewer2: "审稿回来了，Reviewer 2 火气很大。你是硬刚还是认怂？"
+msg.evReviewer2: "早期审稿意见漏了出来，Reviewer 2 火气很大。硬刚还是认怂？"
 msg.evReviewer2Fight: "写一篇有理有据、证据拉满的 rebuttal。"
 msg.evReviewer2FightDone: "熬了十二个小时、堆了一墙引用，这份 rebuttal 堪称艺术品。中稿率上升了——代价是所有人的周末。"
-msg.evReviewer2Concede: "撤稿，回去把论文做强。"
-msg.evReviewer2ConcedeDone: "你撤了稿，认真消化意见，损失了一些进度——但下一版会更难被一句话打发。"
+msg.evReviewer2Concede: "撤回来，回去把工作做强。"
+msg.evReviewer2ConcedeDone: "你认真消化意见，损失了一点进度——但下一版会更难被一句话打发。"
 
 # 事件：业界 offer
 msg.evOffer: "你最强的学生刚收到 **某前沿大厂 50 万美元的 offer**。他们望向你，等你的反应。"
 msg.evOfferBless: "告诉他们这是绝好的机会——去吧。"
-msg.evOfferBlessDone: "他们满怀感激地离开，并成了你实验室的代言人。你失去一位核心战力，但这份善意是真的。"
+msg.evOfferBlessDone: "他们满怀感激地离开，并成了你实验室的代言人。你失去一位战力，但这份善意是真的。"
 msg.evOfferGuilt: "提醒他们论文就差临门一脚……以及你为他们投入了多少。"
 msg.evOfferGuiltDone: "他们留下了，活也往前推了——但屋子里有什么东西变了，而且不是好的方向。"
 
-# 事件：集群宕机
+# 事件：集群宕机 / 天降经费
 msg.evOutage: "GPU 集群在 deadline 前 72 小时挂了，跑着的任务全没了。"
-# 事件：天降经费
 msg.evWindfall: "一笔意外的业界 gift / 补充经费打进了你的账户。"
 
 # 结局
 msg.labImplodes: "**游戏结束。** 士气归零。学生陆续转走，一封匿名信开始流传，你的实验室悄无声息地解散了。那些论文，从来都不值这个代价。"
 msg.bankrupt: "**游戏结束。** 经费见底。你发不出工资，学生四散投奔别的 lab。光靠一口气撑不起一个实验室。"
+msg.labEmpty: "**游戏结束。** 最后一个学生也走了。没有实验室的导师，不过是一个守着一间极安静办公室、头顶 tenure 倒计时的人。"
 msg.tenureGranted: "**TENURE 通过。** 硬核论文、健康的实验室、人人都认得的名字。你成了——而且你的学生还愿意和你说话。*梦想结局。*"
 msg.tenureBorderline: "**Tenure 险过。** 委员会盯着你的声誉皱了半天眉，最后是论文数量把你拉过了线。你进了。喘口气吧。"
 msg.tenureDenied: "**Tenure 被拒。** 委员会说顶会产出不够。你接下了那份六年前就该接的 70 万美元业界 offer。**真正的结局。**"
