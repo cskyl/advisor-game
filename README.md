@@ -1,36 +1,47 @@
 # 导师模拟器 / Advisor Simulator
 
-A random-event-driven, text-based game where you play a brand-new **AI assistant
-professor** running a lab and chasing **tenure** — while trying not to burn out
-your students. You juggle three meters: **Lab Morale**, **Funding**, and
-**Reputation**. Bilingual (English / 中文).
+A random-event-driven, text-based web game where you play a brand-new **AI assistant
+professor** running a lab and chasing **tenure** — while trying not to burn out your
+students. You juggle three meters — **Lab Morale**, **Funding**, **Reputation** — grow
+a lab, buy GPUs, write grants, and submit batches of papers to ICML / NeurIPS / AAAI /
+CVPR. Bilingual (English / 中文).
+
+🎮 **Play:** https://cskyl.github.io/advisor-game/
 
 Built on the **phd-game** engine by [Mianzhi Wang](https://github.com/morriswmz/phd-game)
-(MIT License). The engine in `src/` is unchanged; the game is defined entirely by
-the YAML rulesets in `static/rulesets/advisor/`. The original PhD-student ruleset
-is kept in `static/rulesets/default/` as a reference for event patterns.
+(MIT). The engine in `src/` is unchanged — the entire game is data, in the YAML under
+`static/rulesets/advisor/`.
 
-## Build and play locally
+## Quick start
 
 ```bash
-module load nodejs/20.12.2     # on BU SCC; otherwise have Node 20 on PATH
-npm install                    # first time only
-npm run build && npm start     # -> http://localhost:8000
+# Node 20 required. On BU SCC: export PATH=/share/pkg.8/nodejs/20.12.2/install/bin:$PATH
+npm install                 # first time
+npm run build && npm start  # build (runs validation first) and serve at :8000
+npm run sim                 # print the balance Monte-Carlo
 ```
+
+Push to `master` to deploy (GitHub Pages, via `.github/workflows/deploy.yml`).
 
 ## Gameplay
 
-Each month you choose **one** focus: push the lab toward a deadline, mentor your
-students, write a grant, network, or protect work-life balance. Paper progress
-fills to 100% and auto-submits; your **Reputation** improves the odds against
-**Reviewer 2**. Survive to the **tenure review at the start of Year 7** with
-enough accepted papers — without letting Morale or Funding hit zero.
+The lab produces research automatically each month (faster with more students, better
+GPUs, higher morale). It banks into **drafts**; at each conference deadline you submit
+*all* ready drafts to that venue at once — so a bigger lab lands more papers. Each month
+you pick one focus (crunch / mentor / grant / network / rest / buy GPUs / polish); each
+year you decide whether to recruit. Reach the **Year-7 tenure review**: a few papers
+earns tenure, while **14 papers + reputation ≥ 55** earns the *dream* ending. Let Morale
+or Funding hit zero and the lab collapses.
 
-## Designing / modding
+## Documentation
 
-Everything is data. See **`static/rulesets/advisor/DESIGN.md`** for the engine
-vocabulary cheat sheet, the current vertical slice, and the planned next steps.
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — start here to maintain or extend the game:
+  engine data model, the monthly event loop, how to add content, balance methodology,
+  and the invariants that will bite you.
+- **[static/rulesets/advisor/DESIGN.md](static/rulesets/advisor/DESIGN.md)** — game
+  design: mechanics, current numbers, the engine cheat sheet, and planned next steps.
+- **[CLAUDE.md](CLAUDE.md)** — orientation for AI coding agents.
 
 ## License
 
-MIT
+MIT (engine © Mianzhi Wang; advisor ruleset and docs added on top).
