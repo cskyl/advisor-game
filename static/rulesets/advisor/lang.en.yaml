@@ -8,7 +8,7 @@ ui.lab: "Lab:"
 ui.status: "Status:"
 ui.helpButton: Help
 ui.helpTitle: Help
-ui.helpContent: "You're a brand-new AI assistant professor. Your **lab produces research every month** (faster with more students, better GPUs, higher morale, more talent), which banks into **drafts**. At each **conference deadline** — ICML, ACL, NeurIPS, AAAI, ICLR, CVPR — you submit *all* your ready drafts to that venue at once. Top venues are harder to crack but worth more reputation. Each **month** you pick one focus; each **year** you decide whether to recruit. Watch three meters: **Morale** (0 = the lab implodes), **Funding** (stipends + GPUs drain it monthly; 0 = bankrupt), and **Reputation** (drives acceptance and attracts strong students). At the **tenure review in Year 7**, a few solid papers earns tenure — **{{rule.papersForTenure}} papers and reputation ≥ 55** earns the *dream* ending."
+ui.helpContent: "You're a brand-new AI assistant professor. Your **lab produces research every month** (faster with more students, better GPUs, higher morale, more talent), which banks into **drafts**. Major **conference deadlines** are months apart — ICML, NeurIPS, AAAI, CVPR — and at each one you submit *all* your ready drafts to that venue at once, so a bigger lab can land several papers in one deadline. Top venues are harder to crack but worth more reputation. Each **month** you pick one focus; each **year** you decide whether to recruit. Watch three meters: **Morale** (0 = the lab implodes), **Funding** (stipends + GPUs drain it monthly; 0 = bankrupt), and **Reputation** (drives acceptance and attracts strong students). At the **tenure review in Year 7**, a few solid papers earns tenure — **{{rule.papersForTenure}} papers and reputation ≥ 55** earns the *dream* ending."
 ui.aboutButton: About
 ui.aboutTitle: About
 ui.aboutContent: "**Advisor Simulator** — you run an AI lab and chase tenure while keeping your students sane. A reskin of **PhD Simulator** by Mianzhi Wang (MIT). The game is pure data; edit the YAML in `static/rulesets/advisor` to mod it."
@@ -54,11 +54,9 @@ msg.declineJob: Decline — take the $600k industry research scientist offer ins
 msg.declinedJob: "You join a big AI lab, ship models used by millions, and sleep eight hours a night. Was it the right call? You'll never know. **(You win, sort of.)**"
 
 # Conference openings (one per deadline month)
-msg.confICML: "📣 **ICML deadline this month.** A top-tier venue — hard to get into, but a real prize. Time to push."
-msg.confACL: "📣 **ACL deadline this month.** A respected venue with a friendlier bar. Good for getting work out the door."
+msg.confICML: "📣 **ICML deadline this month.** A top-tier venue — hard to get into, but a real prize. Submit everything that's ready."
 msg.confNeurIPS: "📣 **NeurIPS deadline this month.** The big one. Brutal reviews, enormous prestige. The whole field is sprinting."
-msg.confAAAI: "📣 **AAAI deadline this month.** A solid, broad venue with reasonable odds. A dependable target."
-msg.confICLR: "📣 **ICLR deadline this month.** Top-tier and open-review. High bar, high reward."
+msg.confAAAI: "📣 **AAAI deadline this month.** A solid, broad venue with friendlier odds. A dependable target for the whole pipeline."
 msg.confCVPR: "📣 **CVPR deadline this month.** The vision flagship — fiercely competitive, hugely prestigious."
 
 # Tenure clock

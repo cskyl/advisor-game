@@ -7,7 +7,7 @@ ui.lab: "实验室："
 ui.status: "状态："
 ui.helpButton: 帮助
 ui.helpTitle: 帮助
-ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会产出研究**（学生越多、GPU 越强、士气越高、平均水平越好，出活越快），这些会攒成 **草稿**。每到一个 **会议 deadline**——ICML、ACL、NeurIPS、AAAI、ICLR、CVPR——你会把手头 *所有* 攒好的草稿一次性投到那个会。顶会更难中，但声誉回报更高。每个 **月** 选一件事专注去做；每 **年** 决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。**第 7 年 tenure 评审** 时：几篇像样的论文就能拿到 tenure；攒够 **{{rule.papersForTenure}} 篇且声誉 ≥ 55** 才能拿到 *梦想* 结局。"
+ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会产出研究**（学生越多、GPU 越强、士气越高、平均水平越好，出活越快），这些会攒成 **草稿**。几个主要的 **会议 deadline** 相隔数月——ICML、NeurIPS、AAAI、CVPR——每到一个，你就把手头 *所有* 攒好的草稿一次性投到那个会，所以实验室越大，一次 deadline 能中的论文越多。顶会更难中，但声誉回报更高。每个 **月** 选一件事专注去做；每 **年** 决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。**第 7 年 tenure 评审** 时：几篇像样的论文就能拿到 tenure；攒够 **{{rule.papersForTenure}} 篇且声誉 ≥ 55** 才能拿到 *梦想* 结局。"
 ui.aboutButton: 关于
 ui.aboutTitle: 关于
 ui.aboutContent: "**导师模拟器** —— 你经营一个 AI 实验室，一边冲 tenure，一边别把学生逼疯。改编自 Mianzhi Wang 的 **PhD Simulator**（MIT）。游戏纯数据驱动，编辑 `static/rulesets/advisor` 里的 YAML 即可改。"
@@ -53,11 +53,9 @@ msg.declineJob: 拒绝——去拿那份 60 万美元的业界研究员 offer。
 msg.declinedJob: "你加入一家大厂 AI lab，做出被千万人使用的模型，每晚睡满八小时。这是对的选择吗？你永远不会知道。**（算你赢了，某种意义上。）**"
 
 # 会议开场（每个 deadline 月一条）
-msg.confICML: "📣 **本月 ICML deadline。** 顶会——很难中，但含金量十足。该冲了。"
-msg.confACL: "📣 **本月 ACL deadline。** 受认可的会，门槛友好一些。适合把手头的活先发出去。"
+msg.confICML: "📣 **本月 ICML deadline。** 顶会——很难中，但含金量十足。把攒好的都投出去。"
 msg.confNeurIPS: "📣 **本月 NeurIPS deadline。** 最大的那个。审稿凶残，声望巨大。整个领域都在冲刺。"
-msg.confAAAI: "📣 **本月 AAAI deadline。** 一个扎实、覆盖面广的会，命中率还行。稳妥的目标。"
-msg.confICLR: "📣 **本月 ICLR deadline。** 顶会 + open review。门槛高，回报高。"
+msg.confAAAI: "📣 **本月 AAAI deadline。** 一个扎实、覆盖面广的会，命中率友好些。整条流水线都可以投的稳妥目标。"
 msg.confCVPR: "📣 **本月 CVPR deadline。** 视觉旗舰会——竞争惨烈，声望极高。"
 
 # tenure 倒计时
