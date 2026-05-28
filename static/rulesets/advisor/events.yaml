@@ -40,15 +40,20 @@
       elapsedMonth: 0
       month: 1
       year: 1
-      lab.morale: 75            # ❤️ 0 -> lab implodes
-      pi.funding: 70            # 💰 stipends + GPUs drain this monthly
-      pi.reputation: 18         # 📈 drives acceptance + attracts strong students
+      lab.morale: 78            # ❤️ 0 -> lab implodes
+      pi.funding: 75            # 💰 stipends + GPUs drain this monthly
+      pi.reputation: 20         # 📈 drives acceptance + attracts strong students
       lab.students: 2           # 👥 you start with two PhD students
       lab.compute: 0            # GPU tier 0..5; boosts production + acceptance
       lab.talent: 1.0           # average student quality multiplier
       pi.papers: 0
-      lab.progress: 0           # banked research; 100 = one submittable paper
-      rule.papersForTenure: 10  # papers needed for the *dream* tenure ending
+      lab.progress: 0           # banked research; every 100 = one ready draft
+      lab.draftsReady: 0        # drafts waiting for the next conference deadline
+      conf.accMod: 0            # current venue's acceptance modifier
+      conf.prestige: 1          # current venue's reputation multiplier
+      tmp.acc: 0                # scratch: papers accepted this round
+      tmp.rej: 0                # scratch: papers rejected this round
+      rule.papersForTenure: 12  # papers needed for the *dream* tenure ending
       rule.stipend: 2           # funding per student per month
   - id: SetStatus
     statusId: newFaculty
@@ -95,19 +100,63 @@
         confirm: msg.restart
         winning: true
 
-# --- Deadline season: ICML(1) / NeurIPS(5) / ICLR(9). Sets the crunch mood. -
-- id: DeadlineSeason
+# --- Conference opens: announce the venue, set its difficulty, set crunch mood.
+#  Calendar: ICML(1) ACL(3) NeurIPS(5) AAAI(8) ICLR(9) CVPR(11). Top venues are
+#  harder to get into but worth more reputation; *-mid venues are the opposite.
+#  This fires BEFORE the monthly action so "Crunch" benefits from the deadline.
+- id: ConferenceOpens
   trigger: MonthBegin
   conditions:
   - id: Expression
-    expression: month === 1 || month === 5 || month === 9
+    expression: month === 1 || month === 3 || month === 5 || month === 8 || month === 9 || month === 11
   actions:
   - id: SetStatus
     statusId: deadlineCrunch
     on: true
-  - id: DisplayMessage
-    message: msg.deadlineSeason
-    confirm: msg.ok
+  - id: Switch
+    branches:
+    - condition: month === 1     # ICML — top
+      actions:
+      - id: UpdateVariables
+        updates: { conf.accMod: -0.04, conf.prestige: 1.3 }
+      - id: DisplayMessage
+        message: msg.confICML
+        confirm: msg.ok
+    - condition: month === 3     # ACL — mid
+      actions:
+      - id: UpdateVariables
+        updates: { conf.accMod: 0.08, conf.prestige: 0.9 }
+      - id: DisplayMessage
+        message: msg.confACL
+        confirm: msg.ok
+    - condition: month === 5     # NeurIPS — top
+      actions:
+      - id: UpdateVariables
+        updates: { conf.accMod: -0.04, conf.prestige: 1.3 }
+      - id: DisplayMessage
+        message: msg.confNeurIPS
+        confirm: msg.ok
+    - condition: month === 8     # AAAI — mid
+      actions:
+      - id: UpdateVariables
+        updates: { conf.accMod: 0.08, conf.prestige: 0.9 }
+      - id: DisplayMessage
+        message: msg.confAAAI
+        confirm: msg.ok
+    - condition: month === 9     # ICLR — top
+      actions:
+      - id: UpdateVariables
+        updates: { conf.accMod: -0.04, conf.prestige: 1.3 }
+      - id: DisplayMessage
+        message: msg.confICLR
+        confirm: msg.ok
+    - condition: 1               # CVPR (month 11) — top
+      actions:
+      - id: UpdateVariables
+        updates: { conf.accMod: -0.04, conf.prestige: 1.3 }
+      - id: DisplayMessage
+        message: msg.confCVPR
+        confirm: msg.ok
 
 # --- Monthly upkeep: pay the lab, apply morale drain ------------------------
 - id: MonthlyUpkeep
@@ -284,56 +333,62 @@
     updates:
       lab.progress: lab.progress + floor(lab.students * 3 * (1 + lab.compute * 0.18) * clip(lab.morale / 60, 0.4, 1.4) * clip(lab.talent, 0.7, 1.5))
 
-# --- Paper verdict: when banked progress tops 100, submit & resolve one ------
-- id: PaperResolution
+# --- Conference submission: batch-submit ALL ready drafts to this venue -------
+#  Runs at deadline months, AFTER production. Banked progress is converted into
+#  whole drafts (every 100), and each draft is reviewed in a loop. You can land
+#  several papers (or rejections) in a single deadline.
+- id: ConferenceSubmit
   trigger: MonthBegin
   conditions:
   - id: Expression
-    expression: lab.progress >= 100
+    expression: month === 1 || month === 3 || month === 5 || month === 8 || month === 9 || month === 11
   actions:
-  - id: DisplayMessage
-    message: msg.paperSubmitted
-    confirm: msg.fingersCrossed
-  - id: Random
-    groups:
-    # ACCEPTED — odds rise with reputation, compute, and the polish buff.
-    - weight: clip(0.42 + pi.reputation / 200 + getAttributeValue('pi.paperAcceptanceBoost') + lab.compute * 0.03, 0.1, 0.92)
+  - id: UpdateVariables
+    updates:
+      lab.draftsReady: floor(lab.progress / 100)
+      lab.progress: lab.progress - floor(lab.progress / 100) * 100
+      tmp.acc: 0
+      tmp.rej: 0
+  - id: Switch
+    branches:
+    - condition: lab.draftsReady >= 1
       actions:
-      - id: UpdateVariables
-        updates:
-          pi.papers: pi.papers + 1
-          pi.reputation: pi.reputation + (randi(3) + 4)
-          lab.morale: lab.morale + (randi(5) + 6)
-          lab.progress: lab.progress - 100
-      # Small chance of a spotlight/oral with bonus prestige.
-      - id: Random
-        groups:
-        - weight: 0.15
-          actions:
-          - id: UpdateVariables
-            updates:
-              pi.reputation: pi.reputation + 6
-          - id: GiveItem
-            itemId: bestPaperAward
-            amount: 1
-          - id: DisplayMessage
-            message: msg.paperSpotlight
-            confirm: msg.celebrate
-        - weight: 0.85
-          actions:
-          - id: DisplayMessage
-            message: msg.paperAccepted
-            confirm: msg.celebrate
-    # REJECTED — Reviewer 2. Most of the work survives for a resubmission.
-    - weight: clip(0.58 - pi.reputation / 200 - getAttributeValue('pi.paperAcceptanceBoost') - lab.compute * 0.03, 0.08, 0.9)
-      actions:
-      - id: UpdateVariables
-        updates:
-          lab.morale: lab.morale - (randi(4) + 4)
-          lab.progress: lab.progress - 55   # keep ~45 toward the resubmission
       - id: DisplayMessage
-        message: msg.paperRejected
-        confirm: msg.reviewer2
+        message: msg.confSubmitting
+        confirm: msg.fingersCrossed
+      # Review each ready draft. Acceptance uses the current venue's modifier.
+      - id: Loop
+        stopCondition: lab.draftsReady <= 0
+        maxIterations: 30
+        actions:
+        - id: UpdateVariables
+          updates:
+            lab.draftsReady: lab.draftsReady - 1
+        - id: Random
+          groups:
+          - weight: clip(0.45 + pi.reputation / 200 + getAttributeValue('pi.paperAcceptanceBoost') + lab.compute * 0.03 + conf.accMod, 0.1, 0.95)
+            actions:   # ACCEPTED
+            - id: UpdateVariables
+              updates:
+                pi.papers: pi.papers + 1
+                pi.reputation: pi.reputation + round((randi(3) + 4) * conf.prestige)
+                lab.morale: lab.morale + (randi(4) + 5)
+                tmp.acc: tmp.acc + 1
+          - weight: clip(0.55 - pi.reputation / 200 - getAttributeValue('pi.paperAcceptanceBoost') - lab.compute * 0.03 - conf.accMod, 0.05, 0.9)
+            actions:   # REJECTED — most of the work survives for a resubmission
+            - id: UpdateVariables
+              updates:
+                lab.morale: lab.morale - (randi(3) + 4)
+                lab.progress: lab.progress + 45
+                tmp.rej: tmp.rej + 1
+      - id: DisplayMessage
+        message: msg.confResults
+        confirm: msg.ok
+    - condition: 1   # nothing was ready in time
+      actions:
+      - id: DisplayMessage
+        message: msg.confNothingReady
+        confirm: msg.ok
 
 # ============================================================================
 #  YEARLY EVENTS
@@ -455,7 +510,7 @@
   probability: 0.06
   conditions:
   - id: Expression
-    expression: lab.progress > 20 && lab.progress < 100
+    expression: lab.progress > 20
   actions:
   - id: DisplayChoices
     message: msg.evReviewer2

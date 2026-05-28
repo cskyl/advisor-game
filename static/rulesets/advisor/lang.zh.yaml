@@ -7,7 +7,7 @@ ui.lab: "实验室："
 ui.status: "状态："
 ui.helpButton: 帮助
 ui.helpTitle: 帮助
-ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会自动产出论文**——学生越多、GPU 越强、士气越高、平均水平越好，出活越快。每个 **月** 你在此之上额外选一件事专注去做；每 **年** 你决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。在 **第 7 年初的 tenure 评审** 前攒够 **{{rule.papersForTenure}} 篇中稿论文**（且声誉 ≥ 55）即可拿到最好结局。"
+ui.helpContent: "你是一位刚入职的 AI 助理教授。你的 **实验室每个月都会产出研究**（学生越多、GPU 越强、士气越高、平均水平越好，出活越快），这些会攒成 **草稿**。每到一个 **会议 deadline**——ICML、ACL、NeurIPS、AAAI、ICLR、CVPR——你会把手头 *所有* 攒好的草稿一次性投到那个会。顶会更难中，但声誉回报更高。每个 **月** 选一件事专注去做；每 **年** 决定要不要招人。盯紧三个指标：**士气**（归零实验室崩盘）、**经费**（每月发 stipend + 养 GPU 都在烧，归零破产）、**声誉**（决定中稿率，也决定能否招到强学生）。**第 7 年 tenure 评审** 时：几篇像样的论文就能拿到 tenure；攒够 **{{rule.papersForTenure}} 篇且声誉 ≥ 55** 才能拿到 *梦想* 结局。"
 ui.aboutButton: 关于
 ui.aboutTitle: 关于
 ui.aboutContent: "**导师模拟器** —— 你经营一个 AI 实验室，一边冲 tenure，一边别把学生逼疯。改编自 Mianzhi Wang 的 **PhD Simulator**（MIT）。游戏纯数据驱动，编辑 `static/rulesets/advisor` 里的 YAML 即可改。"
@@ -42,9 +42,7 @@ msg.great: 太好了！
 msg.sigh: "*叹气*"
 msg.gulp: "……咽口水。"
 msg.argh: 啊啊啊！
-msg.celebrate: 🎉
 msg.fingersCrossed: 祈祷中……
-msg.reviewer2: 该死的 Reviewer 2。
 msg.restart: 开启新的时间线。
 
 # 开场
@@ -54,8 +52,13 @@ msg.acceptedJob: "你挂上学位证、摆好咖啡机，见了两位学生。�
 msg.declineJob: 拒绝——去拿那份 60 万美元的业界研究员 offer。
 msg.declinedJob: "你加入一家大厂 AI lab，做出被千万人使用的模型，每晚睡满八小时。这是对的选择吗？你永远不会知道。**（算你赢了，某种意义上。）**"
 
-# Deadline 季
-msg.deadlineSeason: "**Deadline 季到了。** 整个领域都在冲刺。此刻催实验室收益更大——但每个人都在靠最后一口气硬撑。"
+# 会议开场（每个 deadline 月一条）
+msg.confICML: "📣 **本月 ICML deadline。** 顶会——很难中，但含金量十足。该冲了。"
+msg.confACL: "📣 **本月 ACL deadline。** 受认可的会，门槛友好一些。适合把手头的活先发出去。"
+msg.confNeurIPS: "📣 **本月 NeurIPS deadline。** 最大的那个。审稿凶残，声望巨大。整个领域都在冲刺。"
+msg.confAAAI: "📣 **本月 AAAI deadline。** 一个扎实、覆盖面广的会，命中率还行。稳妥的目标。"
+msg.confICLR: "📣 **本月 ICLR deadline。** 顶会 + open review。门槛高，回报高。"
+msg.confCVPR: "📣 **本月 CVPR deadline。** 视觉旗舰会——竞争惨烈，声望极高。"
 
 # tenure 倒计时
 msg.tenureClockStarts: "第 4 年。系主任「温柔地提醒」你：tenure 材料三年后就要交了。倒计时的滴答声，现在响得震耳。"
@@ -79,11 +82,10 @@ msg.actComputeDone: "新节点上线。更大的 batch、更快的迭代——�
 msg.actPolish: "✍️ 死磕写作、framing 和 rebuttal。"
 msg.actPolishDone: "接下来这一两篇投稿会更扎实，也更难被一句话打发。"
 
-# 论文流程
-msg.paperSubmitted: "一篇投稿在 deadline 前几分钟提交出去。现在，等三个匿名陌生人的裁决。"
-msg.paperAccepted: "**中了！** 实验室炸开了锅。每个人 CV 上多了一行实打实的成果，你的声誉也猛涨一截。"
-msg.paperSpotlight: "**中了——还被选为 spotlight！** 报告现场座无虚席。你的声誉直线飙升。"
-msg.paperRejected: "**被拒了。** 两个支持者，外加一个「觉得贡献增量有限」的 Reviewer 2。士气下滑；不过大部分工作能留到下一个 deadline。"
+# 投稿一轮（批量）
+msg.confSubmitting: "一批投稿在 deadline 前几分钟提交出去。现在，等审稿人的裁决。"
+msg.confResults: "**审稿结果出来了。** 接收：**{{tmp.acc}}** · 被拒：**{{tmp.rej}}**。有人开香槟，有人吃了 Reviewer 2 套餐——被拒的工作会留到下一个 deadline。"
+msg.confNothingReady: "这次 deadline 没有攒够能投的草稿。只能等下一个会了。"
 
 # 招生
 msg.recruitChoose: "招生季。申请都到齐了。今年谁加入实验室？"

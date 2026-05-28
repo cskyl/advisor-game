@@ -8,7 +8,7 @@ ui.lab: "Lab:"
 ui.status: "Status:"
 ui.helpButton: Help
 ui.helpTitle: Help
-ui.helpContent: "You're a brand-new AI assistant professor. Your **lab produces papers automatically every month** — faster with more students, better GPUs, higher morale, and more talent. Each **month** you pick one focus on top of that. Each **year** you decide whether to recruit. Watch three meters: **Morale** (0 = the lab implodes), **Funding** (stipends + GPUs drain it monthly; 0 = bankrupt), and **Reputation** (drives acceptance and attracts strong students). Reach the **tenure review at the start of Year 7** with **{{rule.papersForTenure}} accepted papers** (and reputation ≥ 55) for the best ending."
+ui.helpContent: "You're a brand-new AI assistant professor. Your **lab produces research every month** (faster with more students, better GPUs, higher morale, more talent), which banks into **drafts**. At each **conference deadline** — ICML, ACL, NeurIPS, AAAI, ICLR, CVPR — you submit *all* your ready drafts to that venue at once. Top venues are harder to crack but worth more reputation. Each **month** you pick one focus; each **year** you decide whether to recruit. Watch three meters: **Morale** (0 = the lab implodes), **Funding** (stipends + GPUs drain it monthly; 0 = bankrupt), and **Reputation** (drives acceptance and attracts strong students). At the **tenure review in Year 7**, a few solid papers earns tenure — **{{rule.papersForTenure}} papers and reputation ≥ 55** earns the *dream* ending."
 ui.aboutButton: About
 ui.aboutTitle: About
 ui.aboutContent: "**Advisor Simulator** — you run an AI lab and chase tenure while keeping your students sane. A reskin of **PhD Simulator** by Mianzhi Wang (MIT). The game is pure data; edit the YAML in `static/rulesets/advisor` to mod it."
@@ -43,9 +43,7 @@ msg.great: Great!
 msg.sigh: "*sigh*"
 msg.gulp: "...gulp."
 msg.argh: Argh!
-msg.celebrate: 🎉
 msg.fingersCrossed: Fingers crossed...
-msg.reviewer2: Curse you, Reviewer 2.
 msg.restart: Start a new timeline.
 
 # Opening
@@ -55,8 +53,13 @@ msg.acceptedJob: "You hang your diploma, set up a coffee machine, and meet your 
 msg.declineJob: Decline — take the $600k industry research scientist offer instead.
 msg.declinedJob: "You join a big AI lab, ship models used by millions, and sleep eight hours a night. Was it the right call? You'll never know. **(You win, sort of.)**"
 
-# Deadline season
-msg.deadlineSeason: "**Deadline season.** The whole field is sprinting. Pushing the lab now pays off more — but everyone's running on fumes."
+# Conference openings (one per deadline month)
+msg.confICML: "📣 **ICML deadline this month.** A top-tier venue — hard to get into, but a real prize. Time to push."
+msg.confACL: "📣 **ACL deadline this month.** A respected venue with a friendlier bar. Good for getting work out the door."
+msg.confNeurIPS: "📣 **NeurIPS deadline this month.** The big one. Brutal reviews, enormous prestige. The whole field is sprinting."
+msg.confAAAI: "📣 **AAAI deadline this month.** A solid, broad venue with reasonable odds. A dependable target."
+msg.confICLR: "📣 **ICLR deadline this month.** Top-tier and open-review. High bar, high reward."
+msg.confCVPR: "📣 **CVPR deadline this month.** The vision flagship — fiercely competitive, hugely prestigious."
 
 # Tenure clock
 msg.tenureClockStarts: "Year 4. The department chair 'gently reminds' you that your tenure packet is due in three years. The clock is now very loud."
@@ -80,11 +83,10 @@ msg.actComputeDone: "New nodes spin up. Bigger batches, faster iteration — and
 msg.actPolish: "✍️ Drill on writing, framing, and rebuttals."
 msg.actPolishDone: "The next couple of submissions will be tighter and harder to dismiss."
 
-# Paper pipeline
-msg.paperSubmitted: "A submission goes out the door minutes before the deadline. Now you wait for three anonymous strangers."
-msg.paperAccepted: "**ACCEPTED!** The lab erupts. A real line on everyone's CV and a jolt to your reputation."
-msg.paperSpotlight: "**ACCEPTED — and selected for a spotlight!** The talk packs the room. Your reputation soars."
-msg.paperRejected: "**Rejected.** Two champions, one Reviewer 2 who 'found the contribution incremental.' Morale dips; most of the work survives for the next deadline."
+# Submission round (batch)
+msg.confSubmitting: "Submissions fly out the door minutes before the deadline. Now you wait for the reviewers."
+msg.confResults: "**The reviews are in.** Accepted: **{{tmp.acc}}** · Rejected: **{{tmp.rej}}**. Champagne for some, a Reviewer 2 special for others — rejected work survives for the next deadline."
+msg.confNothingReady: "Nothing was ready in time for this deadline. The drafts will have to wait for the next venue."
 
 # Recruiting
 msg.recruitChoose: "Recruiting season. Applications are in. Who joins the lab this year?"

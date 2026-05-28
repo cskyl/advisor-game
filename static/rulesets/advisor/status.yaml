@@ -17,7 +17,7 @@ status:
   - attributeModifiers:
     - target: pi.moraleDrain
       type: Absolute
-      amount: 3          # crunch quietly burns morale every month
+      amount: 2          # crunch quietly burns morale every month
 # A strong rebuttal buff: temporarily raises acceptance odds.
 - id: strongRebuttal
   duration: 2
