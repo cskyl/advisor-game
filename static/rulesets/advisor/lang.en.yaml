@@ -15,8 +15,9 @@ ui.aboutContent: "**Advisor Simulator** — you run an AI lab and chase tenure w
 
 # Meters
 ui.moraleMeter: "❤ Morale {{lab.morale}}/100"
-ui.fundingMeter: "$ Funding {{pi.funding}}"
+ui.fundingMeter: "$ Funding {{pi.funding}} (−{{hud.monthlyBurn}}/mo, ~{{hud.runway}}mo left)"
 ui.labMeter: "👥 {{lab.students}} · GPU {{lab.compute}}"
+ui.researchMeter: "📄 {{hud.draftsBanked}} draft(s) ready · {{lab.progress}}/100 next"
 ui.reputationMeter: "★ Rep {{pi.reputation}} · Papers {{pi.papers}}/{{rule.papersForTenure}}"
 ui.timeMeter: "Year {{year}} Month {{month}}"
 
@@ -76,7 +77,7 @@ msg.actNetworkDone: "Handshakes, a podcast invite, two new collaborators. Your n
 msg.actNetworkGift: "Over coffee, an industry friend offers an **unrestricted gift** to your lab. Yes please."
 msg.actRest: "🌿 Protect work-life balance this month."
 msg.actRestDone: "No weekend emails. The lab recharges; you fall a touch behind the hype cycle, and that's fine."
-msg.actCompute: "💻 Spend funding to upgrade the GPU cluster."
+msg.actCompute: "💻 Upgrade the GPU cluster (cost {{hud.gpuCost}} funding)."
 msg.actComputeDone: "New nodes spin up. Bigger batches, faster iteration — and a very happy lab."
 msg.actPolish: "✍️ Drill on writing, framing, and rebuttals."
 msg.actPolishDone: "The next couple of submissions will be tighter and harder to dismiss."
@@ -87,12 +88,12 @@ msg.confResults: "**The reviews are in.** Accepted: **{{tmp.acc}}** · Rejected:
 msg.confNothingReady: "Nothing was ready in time for this deadline. The drafts will have to wait for the next venue."
 
 # Recruiting
-msg.recruitChoose: "Recruiting season. Applications are in. Who joins the lab this year?"
-msg.recruitStrong: "Recruit a standout PhD (needs reputation; brings talent)."
+msg.recruitChoose: "Recruiting season. Applications are in. Who joins the lab this year? *(Each student adds {{rule.stipend}}/month to your stipend bill; you're at −{{hud.monthlyBurn}}/mo with ~{{hud.runway}} months of funding.)*"
+msg.recruitStrong: "Recruit a standout PhD (−8 funding; needs reputation; brings talent)."
 msg.recruitStrongDone: "A coveted admit picks *your* lab over the offers. The whole group levels up."
-msg.recruitRegular: "Recruit a solid, regular PhD student."
+msg.recruitRegular: "Recruit a solid, regular PhD student (−5 funding)."
 msg.recruitRegularDone: "A capable new student joins. Onboarding takes a bit, and the stipend bill grows."
-msg.recruitPostdoc: "Hire a postdoc (expensive, immediately productive)."
+msg.recruitPostdoc: "Hire a postdoc (−22 funding; expensive, immediately productive)."
 msg.recruitPostdocDone: "An experienced postdoc arrives and hits the ground running — at a real cost to the budget."
 msg.recruitNone: "Hold steady — no new hires this year."
 msg.recruitNoneDone: "You keep the lab lean and close-knit. Sometimes that's the wise move."

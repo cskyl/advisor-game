@@ -16,7 +16,7 @@ statsBar:
   - text: ui.fundingMeter
     side: left
     updateTrigger:
-      variables: ["pi.funding"]
+      variables: ["pi.funding", "hud.monthlyBurn", "hud.runway"]
     conditionalStyles:
     - condition: pi.funding > 30
       styleClasses: ["normal"]
@@ -28,6 +28,10 @@ statsBar:
     side: left
     updateTrigger:
       variables: ["lab.students", "lab.compute"]
+  - text: ui.researchMeter
+    side: left
+    updateTrigger:
+      variables: ["lab.progress", "hud.draftsBanked"]
   - text: ui.reputationMeter
     side: left
     updateTrigger:

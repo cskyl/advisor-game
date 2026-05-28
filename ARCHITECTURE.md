@@ -202,6 +202,13 @@ tenure is reliable — that's the intended "approachable" feel.
 - **EN and ZH must define the same keys.** `validate.js` flags missing/unused; keep both
   files in lockstep when you add/rename a string.
 - **Keep the sim in sync** (§7).
+- **Showing computed numbers:** text only interpolates bare `{{variable}}` (no inline
+  math). To display a derived value (monthly burn, GPU cost, funding runway, banked
+  drafts) compute it into a `hud.*` variable in the `RecomputeDerived` event (run early
+  each month) and reference `{{hud.x}}` in a string. If an action changes the inputs
+  mid-month (e.g. buying a GPU bumps `lab.compute`), recompute the affected `hud.*` in
+  that action too. Name them `hud.*`, not `ui.*` — `ui.*`/`msg.*` are reserved for
+  translation keys and the validator treats them as such.
 - **GitHub Pages base path:** the site is served from `/advisor-game/`. Asset paths in
   `index.html` are relative, so this works — don't switch them to absolute `/...`.
 

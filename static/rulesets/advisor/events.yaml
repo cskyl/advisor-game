@@ -55,6 +55,11 @@
       tmp.rej: 0                # scratch: papers rejected this round
       rule.papersForTenure: 14  # papers needed for the *dream* tenure ending
       rule.stipend: 2           # funding per student per month
+      # --- derived, display-only vars (kept current by RecomputeDerived) ---
+      hud.monthlyBurn: lab.students * rule.stipend + lab.compute - 2  # net funding/mo
+      hud.gpuCost: 18 + lab.compute * 9                              # next GPU upgrade
+      hud.runway: floor(pi.funding / max(lab.students * rule.stipend + lab.compute - 2, 1))  # months of funding left
+      hud.draftsBanked: floor(lab.progress / 100)                    # papers ready to submit
   - id: SetStatus
     statusId: newFaculty
     on: true
@@ -99,6 +104,19 @@
         message: msg.declinedJob
         confirm: msg.restart
         winning: true
+
+# --- Keep display-only vars current (shown in the stats bar + action menu). ----
+#  Runs before the monthly action so "Buy GPUs" shows the right cost. The same
+#  recompute is appended to actions that change students/compute mid-month.
+- id: RecomputeDerived
+  trigger: MonthBegin
+  actions:
+  - id: UpdateVariables
+    updates:
+      hud.monthlyBurn: lab.students * rule.stipend + lab.compute - 2
+      hud.gpuCost: 18 + lab.compute * 9
+      hud.runway: floor(pi.funding / max(lab.students * rule.stipend + lab.compute - 2, 1))
+      hud.draftsBanked: floor(lab.progress / 100)
 
 # --- Conference opens: announce the venue, set its difficulty, set crunch mood.
 #  Calendar: ICML(2) NeurIPS(5) AAAI(8) CVPR(11). The ~3-month gaps let the lab
@@ -296,6 +314,10 @@
           pi.funding: pi.funding - (18 + lab.compute * 9)
           lab.compute: lab.compute + 1
           lab.morale: lab.morale + 3   # everyone loves a bigger cluster
+          # refresh displayed cost/burn now (lab.compute was just incremented above)
+          hud.gpuCost: 18 + lab.compute * 9
+          hud.monthlyBurn: lab.students * rule.stipend + lab.compute - 2
+          hud.runway: floor(pi.funding / max(lab.students * rule.stipend + lab.compute - 2, 1))
       - id: DisplayMessage
         message: msg.actComputeDone
         confirm: msg.great

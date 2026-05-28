@@ -14,8 +14,9 @@ ui.aboutContent: "**导师模拟器** —— 你经营一个 AI 实验室，一�
 
 # 指标
 ui.moraleMeter: "❤ 士气 {{lab.morale}}/100"
-ui.fundingMeter: "$ 经费 {{pi.funding}}"
+ui.fundingMeter: "$ 经费 {{pi.funding}}（每月 −{{hud.monthlyBurn}}，约够 {{hud.runway}} 月）"
 ui.labMeter: "👥 {{lab.students}} 人 · GPU {{lab.compute}} 级"
+ui.researchMeter: "📄 {{hud.draftsBanked}} 篇待投 · 下一篇 {{lab.progress}}/100"
 ui.reputationMeter: "★ 声誉 {{pi.reputation}} · 论文 {{pi.papers}}/{{rule.papersForTenure}}"
 ui.timeMeter: "第 {{year}} 年 {{month}} 月"
 
@@ -75,7 +76,7 @@ msg.actNetworkDone: "握手、一个播客邀约、两个新合作者。你的�
 msg.actNetworkGift: "喝咖啡时，一位业界朋友提出给你实验室一笔 **无限制 gift**。当然要。"
 msg.actRest: "🌿 这个月守住 work-life balance。"
 msg.actRestDone: "周末不发邮件。实验室回了血；你稍微落后了热点节奏，但没关系。"
-msg.actCompute: "💻 花经费升级 GPU 集群。"
+msg.actCompute: "💻 升级 GPU 集群（花费 {{hud.gpuCost}} 经费）。"
 msg.actComputeDone: "新节点上线。更大的 batch、更快的迭代——还有一个非常开心的实验室。"
 msg.actPolish: "✍️ 死磕写作、framing 和 rebuttal。"
 msg.actPolishDone: "接下来这一两篇投稿会更扎实，也更难被一句话打发。"
@@ -86,12 +87,12 @@ msg.confResults: "**审稿结果出来了。** 接收：**{{tmp.acc}}** · 被�
 msg.confNothingReady: "这次 deadline 没有攒够能投的草稿。只能等下一个会了。"
 
 # 招生
-msg.recruitChoose: "招生季。申请都到齐了。今年谁加入实验室？"
-msg.recruitStrong: "招一位顶尖博士生（需要声誉；带来水平提升）。"
+msg.recruitChoose: "招生季。申请都到齐了。今年谁加入实验室？*（每多一个学生，每月 stipend 账单 +{{rule.stipend}}；你目前每月 −{{hud.monthlyBurn}}，约够 {{hud.runway}} 个月。）*"
+msg.recruitStrong: "招一位顶尖博士生（−8 经费；需要声誉；带来水平提升）。"
 msg.recruitStrongDone: "一个抢手的录取者，在众多 offer 里选了 *你的* 实验室。整个组都上了一个台阶。"
-msg.recruitRegular: "招一位踏实的普通博士生。"
+msg.recruitRegular: "招一位踏实的普通博士生（−5 经费）。"
 msg.recruitRegularDone: "一位有能力的新生加入了。上手要点时间，stipend 账单也涨了。"
-msg.recruitPostdoc: "聘一位博士后（很贵，但立刻能产出）。"
+msg.recruitPostdoc: "聘一位博士后（−22 经费；很贵，但立刻能产出）。"
 msg.recruitPostdocDone: "一位经验丰富的博士后到岗，立刻进入状态——代价是预算实打实地缩水。"
 msg.recruitNone: "维持现状——今年不招人。"
 msg.recruitNoneDone: "你让实验室保持精简而紧密。有时候这才是明智之举。"
